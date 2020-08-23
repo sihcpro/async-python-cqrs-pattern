@@ -1,0 +1,6 @@
+gino-sanic
+gino
+sanic
+pyrsistent
+psycopg2-binary
+requests

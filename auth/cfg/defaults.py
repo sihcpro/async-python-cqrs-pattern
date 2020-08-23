@@ -1,0 +1,1 @@
+AUTH_KEY_LENGTH = 63
