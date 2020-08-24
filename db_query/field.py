@@ -31,11 +31,19 @@ class StringField(QueryField):
     __allowed_operator__ = ["eq"]
 
 
+class DatetimeField(StringField):
+    pass
+
+
 class UUIDField(StringField):
     pass
 
 
 class ArrayField(QueryField):
+    pass
+
+
+class JsonField(QueryField):
     pass
 
 

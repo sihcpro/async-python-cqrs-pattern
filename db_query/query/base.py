@@ -17,8 +17,8 @@ class BaseQuery:
     __no_meta__: bool = False
 
     # Default value
-    __sort__: List[str] = ["_created"]
-    __soft_delete__: List[str] = ["_deleted"]
+    __order__: List[str] = None
+    __soft_delete__: List[str] = None
     __identifier_column__: str = "_id"
 
     def __init__(self):
@@ -91,8 +91,8 @@ class BaseQuery:
         return self.__no_meta__
 
     @property
-    def sort(self):
-        return self.__sort__
+    def order(self):
+        return self.__order__
 
     @property
     def soft_delete(self):
