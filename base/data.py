@@ -1,4 +1,5 @@
 from pyrsistent import PClass
+
 from system.cfg import config
 
 
