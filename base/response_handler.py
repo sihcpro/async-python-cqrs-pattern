@@ -1,4 +1,4 @@
-from sanic.response import HTTPResponse
+from sanic.response import BaseHTTPResponse
 
 from .cfg import logger
 from .exceptions import AppException
@@ -26,7 +26,7 @@ class ResponseHandler(AppResponse):
         async def _handler(*args, **kwargs):
             try:
                 resp = await func(*args, **kwargs)
-                if isinstance(resp, HTTPResponse):
+                if isinstance(resp, BaseHTTPResponse):
                     return resp
                 elif isinstance(resp, dict):
                     return AppResponse(data=resp)
