@@ -6,13 +6,17 @@ from tempfile import NamedTemporaryFile
 from base.helper.file import get_file_extension, get_valid_file_path
 
 from ..cfg import config, logger
-from ..helper import create_boto3_environment
+from ..helper import create_boto3_environment, get_s3_url
 
 
 class S3Base:
-    def __init__(
-        self,
-        bucket_name,
+    __is_connected = False
+    __resource = None
+    __client = None
+
+    @classmethod
+    def connect(
+        cls,
         access_key=config.ACCESS_KEY,
         access_secret=config.ACCESS_SECRET,
         default_region=config.DEFAULT_REGION,
@@ -21,23 +25,37 @@ class S3Base:
         """
         exists_env: If you allready setup S3 Amazon environment then set True
         """
-        logger.debug(f"~~~~~~~> Connect bucket: {bucket_name}")
+        if cls.__is_connected:
+            return
 
-        self.__bucket_name = bucket_name
+        logger.debug("~~~~~~~> Connect to S3 Amazon")
         if not exists_env:
             create_boto3_environment(access_key, access_secret, default_region)
 
-        self.__resource = boto3.resource("s3")
-        self.__client = boto3.client("s3")
+        cls.__resource = boto3.resource("s3")
+        cls.__client = boto3.client("s3")
+        cls.__region = default_region
+        cls.__is_connected = True
+
+    def __init__(
+        self, bucket_name,
+    ):
+        if not self.__is_connected:
+            self.connect()
+
+        logger.debug(f"~~~~~~~> Connect bucket: {bucket_name}")
+
+        self.__bucket_name = bucket_name
         self.__bucket = self.__resource.Bucket(self.__bucket_name)
 
         self.__tmp_file__: BinaryIO = None
         self.response = None
-        self.filename = None
+        self.__filename = None
+        self.__object: dict = None
 
     def init_tmp_file(self, filename, file_path: str = None):
         self.__destroy_tmp_file()
-        if self.filename == filename:
+        if self.__filename == filename:
             return
 
         if file_path is not None:
@@ -49,7 +67,7 @@ class S3Base:
             self.__tmp_file__ = NamedTemporaryFile(
                 suffix=f".{get_file_extension(filename)}", delete=False
             )
-            self.filename = self.__tmp_file__.name
+            self.__filename = self.__tmp_file__.name
 
     def __destroy_tmp_file(self):
         if self.__tmp_file__ is not None:
@@ -59,9 +77,30 @@ class S3Base:
     def __del__(self):
         self.__destroy_tmp_file()
 
+    def set_object(self, data: dict):
+        self.__object = data
+        self.__object["Url"] = get_s3_url(self)
+
+    def update_object(self, data: dict, **args):
+        if data:
+            self.__object.update(data)
+        self.__object.update(args)
+
+    @property
+    def object_info(self) -> dict:
+        return self.__object
+
     @property
     def tmp_file(self) -> BinaryIO:
         return self.__tmp_file__
+
+    @property
+    def filename(self):
+        return self.__filename
+
+    @property
+    def region(self):
+        return self.__region
 
     @property
     def bucket_name(self):

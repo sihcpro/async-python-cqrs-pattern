@@ -19,3 +19,10 @@ def create_boto3_environment(access_key, access_secret, default_region):
 
     with open(os.path.join(boto3_root_dir, "config"), "w") as config:
         config.write(f"[default]\nregion = {default_region}\n")
+
+
+def get_s3_url(s3_object) -> str:
+    return (
+        f"https://{s3_object.bucket_name}.s3-{s3_object.region}.amazonaws.com/"
+        f"{s3_object.object_info['Key']}"
+    )

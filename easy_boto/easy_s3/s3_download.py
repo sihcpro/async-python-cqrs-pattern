@@ -5,7 +5,7 @@ from .s3_base import S3Base
 
 
 class S3Download(S3Base):
-    def download(self, filename, file_path: str = None) -> str:
+    async def download(self, filename, file_path: str = None) -> str:
         self.init_tmp_file(filename, file_path)
         if self.filename == filename:
             return self.filename
