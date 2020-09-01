@@ -40,6 +40,8 @@ class DomainProcess(DomainRegister, DomainHandler):
 
     async def commit(self) -> List[BaseResponse]:
         async def distribute_aggregate(aggregate: Tuple[str, Entity, Any]):
+            if aggregate is None:
+                return
             logger.debug(
                 "~~~> Aggregate: %r"
                 % (
