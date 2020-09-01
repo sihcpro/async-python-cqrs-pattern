@@ -36,8 +36,7 @@ class AuthUserData(PayloadData):
 class UserInfo(PayloadData):
     _id = field(UUID_TYPE, mandatory=True)
 
-    name__first = field(str, mandatory=True)
-    name__lats = field(str, mandatory=True)
+    fullname = field(str, mandatory=True)
 
     email = field(nullable(str))
 
@@ -57,8 +56,7 @@ class UserData(PayloadData):
     username = field(str, mandatory=True, invariant=variant.min_length(4, "username"))
     password = field(str, mandatory=True, invariant=variant.min_length(8, "password"))
 
-    name__given = field(nullable(str))
-    name__family = field(nullable(str))
+    fullname = field(str, mandatory=True)
 
     contact__phone = field(nullable(str))
     contact__email = field(str, mandatory=True, invariant=validator.email)

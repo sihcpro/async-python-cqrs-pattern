@@ -16,11 +16,9 @@ class UserModel(TrackingModel):
     username = db.Column(db.String(255))
     password = db.Column(db.String(1023))
 
-    name__given = db.Column(db.String(255))
-    name__family = db.Column(db.String(255))
+    fullname = db.Column(db.String(255))
 
     gender = db.Column(db.Integer())
-    date_of_birth = db.Column(db.DateTime(timezone=False))
     year_of_birth = db.Column(db.Integer())
 
     contact__phone = db.Column(db.String(15))
@@ -28,11 +26,6 @@ class UserModel(TrackingModel):
 
     is_verified__phone = db.Column(db.Boolean())
     is_verified__email = db.Column(db.Boolean())
-
-    address__city = db.Column(db.String(31))
-    address__district = db.Column(db.String(31))
-    address__address = db.Column(db.String(255))
-    address__zipcode = db.Column(db.String(31))
 
 
 class UserAuthModel(Model):
