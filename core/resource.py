@@ -5,7 +5,11 @@ from base import TrackingModel, TrackingPayloadData, UUID_TYPE, PayloadData, Mod
 
 class BaseResource:
     __resource_name__ = "resource-name"
-    __backend__ = Model
+    __model__ = Model
+
+    @property
+    def model(self) -> Model:
+        return self.__model__
 
 
 class Resource(BaseResource, PayloadData):
@@ -13,6 +17,10 @@ class Resource(BaseResource, PayloadData):
 
 
 class TrackingResource(BaseResource, TrackingPayloadData):
-    __backend__ = TrackingModel
+    __model__ = TrackingModel
 
     _id = field(UUID_TYPE, mandatory=True)
+
+    @property
+    def model(self) -> TrackingModel:
+        return self.__model__

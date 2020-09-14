@@ -45,7 +45,7 @@ class StateStore(BaseState):
             logger.debug("~~> Key: %r", key)
             if key not in self.origin:
                 logger.debug(f"<~~ Created {item.__class__.__name__}")
-                Model = item.__backend__
+                Model = item.__model__
 
                 result = await Model.create(**item.serialize())
                 yield (f"Created {key}", result)
@@ -54,7 +54,7 @@ class StateStore(BaseState):
                 and item._etag != self.origin[key]._etag
             ):
                 logger.debug(f"<~~ Updated {item.__class__.__name__}")
-                Model = item.__backend__
+                Model = item.__model__
 
                 result = (
                     await Model.update.values(**item.serialize())
@@ -68,7 +68,7 @@ class StateStore(BaseState):
                 yield (f"Updated {key}", result)
             elif isinstance(item, Resource) and item is not self.origin[key]:
                 logger.debug(f"<~~ Updated {item.__class__.__name__} Resource")
-                Model = item.__backend__
+                Model = item.__model__
 
                 result = (
                     await Model.update.values(**item.serialize())

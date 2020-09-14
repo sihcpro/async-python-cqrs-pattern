@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from base import Model
 from base.identifier import UUID_TYPE
 
 from .datadef import PayloadData, Targeter, ResourceData
@@ -17,6 +18,9 @@ class Proxy:
 
     def lookup_resource(self, resource_name: str) -> Resource:
         return self.__stagemgr.lookup_resource(resource_name)
+
+    def lookup_model(self, resource_name: str) -> Model:
+        return self.lookup_resource(resource_name).__model__
 
     async def fetch_target(self, target: ResourceData) -> Resource:
         return await self.__stagemgr.fetch_target(target)

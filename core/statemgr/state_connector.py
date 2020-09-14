@@ -11,7 +11,7 @@ class StateConnector(StateStore):
 
     async def fetch_from_db(self, resource: str, identifier: UUID_TYPE) -> Resource:
         ResourceModel = self.lookup_resource(resource)
-        item = await ResourceModel.__backend__.get(identifier)
+        item = await ResourceModel.__model__.get(identifier)
         if item is None:
             raise NotFoundException(
                 errcode=404904, data={"resource": resource, "identifier": identifier}
