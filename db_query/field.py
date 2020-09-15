@@ -23,6 +23,10 @@ class IntField(QueryField):
     __allowed_operator__ = ["eq"]
 
 
+class BooleanField(QueryField):
+    __allowed_operator__ = ["eq"]
+
+
 class FloatField(QueryField):
     __allowed_operator__ = ["eq"]
 

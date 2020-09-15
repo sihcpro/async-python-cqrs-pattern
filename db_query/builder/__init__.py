@@ -1,7 +1,7 @@
 from base.exceptions import BadRequestException
 from json import loads
 
-from ..cfg import logger
+from ..cfg import logger, config
 from ..query import BaseQuery
 
 
@@ -10,6 +10,10 @@ class QueryBuilder:
         url_query = {
             "select": set(loads(query_url.args.get("select", "[]"))),
             "order": set(loads(query_url.args.get("order", "[]"))),
+            "limit": int(
+                query_url.args.get("limit", base_query.get("limit", config.LIMIT))
+            ),
+            "offset": int(query_url.args.get("offset", base_query.get("offset", 0))),
         }
 
         def build_select():
@@ -81,8 +85,13 @@ class QueryBuilder:
 
         def build_object_attribute():
             obj_query = []
+
             if query_obj.only_one:
-                obj_query.append("limit=1")
+                url_query["limit"] = 1
+
+            obj_query.append(f"limit={url_query['limit']}")
+            obj_query.append(f"offset={url_query['offset']}")
+
             return obj_query
 
         query_list = []
