@@ -6,7 +6,6 @@ from .data import PayloadData
 from .hashes import generate_v1
 from .identifier import UUID_TYPE
 from .model import Model, db
-from .type import nullable
 
 
 class TrackingModel(Model):
@@ -27,8 +26,7 @@ class TrackingPayloadData(PayloadData):
     _updater = field(UUID_TYPE, mandatory=True)
 
     _created = field(datetime, mandatory=True)
-    _updated = field(datetime, mandatory=True, initial=datetime.utcnow)
-    _updated = field(nullable(datetime), mandatory=True, initial=None)
+    _updated = field(datetime, mandatory=True)
 
     _etag = field(str, mandatory=True, initial=generate_v1)
 

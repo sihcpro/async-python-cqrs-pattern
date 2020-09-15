@@ -1,6 +1,7 @@
+from datetime import datetime
 from pyrsistent import field
 
-from base import TrackingModel, TrackingPayloadData, UUID_TYPE, PayloadData, Model
+from base import UUID_TYPE, Model, PayloadData, TrackingModel, TrackingPayloadData
 
 
 class BaseResource:
@@ -14,6 +15,8 @@ class BaseResource:
 
 class Resource(BaseResource, PayloadData):
     _id = field(UUID_TYPE, mandatory=True)
+
+    _created = field(datetime)
 
 
 class TrackingResource(BaseResource, TrackingPayloadData):
