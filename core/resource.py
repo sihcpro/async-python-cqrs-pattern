@@ -2,6 +2,7 @@ from datetime import datetime
 from pyrsistent import field
 
 from base import UUID_TYPE, Model, PayloadData, TrackingModel, TrackingPayloadData
+from base.type import nullable
 
 
 class BaseResource:
@@ -16,7 +17,7 @@ class BaseResource:
 class Resource(BaseResource, PayloadData):
     _id = field(UUID_TYPE, mandatory=True)
 
-    _created = field(datetime)
+    _created = field(nullable(datetime))
 
 
 class TrackingResource(BaseResource, TrackingPayloadData):
