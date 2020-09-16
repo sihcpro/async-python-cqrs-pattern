@@ -40,7 +40,7 @@ class Proxy:
         return (self.__domain.__namespace__, entity, handler)
 
     def create_event(
-        self, name: str, data: PayloadData, targeter: Targeter
+        self, name: str, data: [PayloadData, dict], targeter: [Targeter, dict]
     ) -> Tuple[str, Event, Entity]:
         targeter = (
             Targeter.extend_pclass(targeter)

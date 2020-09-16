@@ -36,8 +36,9 @@ class AuthUserData(PayloadData):
 class UserInfo(PayloadData):
     _id = field(UUID_TYPE, mandatory=True)
 
-    fullname = field(str, mandatory=True)
+    status = field(int, mandatory=True)
 
+    fullname = field(str, mandatory=True)
     email = field(nullable(str))
 
     gender = field(nullable(int))

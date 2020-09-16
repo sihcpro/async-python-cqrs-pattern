@@ -38,8 +38,6 @@ class MutationCreated(Mutation):
                 _etag=hashes.generate_v1(config.ETAG_LENGTH),
             )
         else:
-            a = ResourceClass.extend_pclass(self.data, _created=now,)
-            print("--_______>", a)
             return ResourceClass.extend_pclass(self.data, _created=now,)
 
 
