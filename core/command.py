@@ -1,3 +1,4 @@
+from base import PayloadData
 from base.store import Store
 
 from .context import Context
@@ -23,6 +24,7 @@ class Command:
         self.__proxy__ = proxy
 
         self.initiator = self.__context__.initiator
+        self.data: PayloadData = None
 
     async def commit(self):
         logger.debug("~> Committing")

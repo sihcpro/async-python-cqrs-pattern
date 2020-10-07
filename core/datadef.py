@@ -1,8 +1,6 @@
 from pyrsistent import field
 
-from base.data import PayloadData
-from base.identifier import UUID_GENR, UUID_TYPE
-from base import factory
+from base import factory, PayloadData, UUID_GENR, UUID_TYPE
 
 
 class ResourceData(PayloadData):

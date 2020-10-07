@@ -1,17 +1,6 @@
 # System
 ENV = "default"
 
-# Application
-APP_SORT_NAME = "BAS"
-APP_NAME = "Bridging All Space"
-APP_HOST = "0.0.0.0"
-APP_PORT = 8080
-
-# DataBase
-SCHEMA_NAME = "BAS"
-DB_DSN = "postgres://postgres:postgres@localhost/local?sslmode=require"
-DB_SSL = "require"
-
 # Logger
 LOG_LEVEL = "DEBUG"
 LOG_FORMATTER = (
@@ -33,3 +22,6 @@ IGNORE_EXTRA_FIELDS = True
 DEBUG = True
 DEBUG_CORE = True
 DEBUG_SQL = False
+
+# Extra path
+DATABASE_PATH = "data/database"
