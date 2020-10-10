@@ -12,7 +12,7 @@ def register_query_domain(
     logger.info(f"Register domain '{domain}' with backend '{backend}'")
 
     def _register_query_model(QueryModel: BaseQuery) -> BaseQuery:
-        query_obj = QueryModel(domain, backend)
+        query_obj: BaseQuery = QueryModel(domain, backend)
         logger.info(
             f"Register query endpoint '{domain}/{query_obj.endpoint}' "
             f"with table '{query_obj.table}'"

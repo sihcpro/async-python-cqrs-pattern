@@ -5,31 +5,33 @@ from ..cfg import logger, config
 from ..query import BaseQuery
 
 
+def load_query(query_url: dict, query_key: str, default=None):
+    try:
+        return loads(query_url.args.get(query_key))
+    except Exception:
+        return default
+
+
 class QueryBuilder:
     def build(self, query_obj: BaseQuery, query_url: dict, base_query: dict) -> str:
         url_query = {
-            "select": set(loads(query_url.args.get("select", "[]"))),
-            "order": set(loads(query_url.args.get("order", "[]"))),
+            "select": set(load_query(query_url, "select", [])),
+            "order": set(load_query(query_url, "order", [])),
+            "where": load_query(query_url, "where", {}),
             "limit": int(
-                query_url.args.get("limit", base_query.get("limit", config.LIMIT))
+                load_query(query_url, "limit", base_query.get("limit", config.LIMIT))
             ),
-            "offset": int(query_url.args.get("offset", base_query.get("offset", 0))),
+            "offset": int(load_query(query_url, "offset", base_query.get("offset", 0))),
         }
 
         def build_select():
-            select_list = url_query["select"]
+            # select_list = url_query["select"]
 
-            if select_list:
-                if select_list.issubset(query_obj.default_select) is False:
-                    raise BadRequestException(
-                        errcode=400853,
-                        message=(
-                            f"Field {select_list - query_obj.default_select} "
-                            "is not exists in select"
-                        ),
-                    )
-            else:
-                select_list = query_obj.default_select
+            select_list = (
+                query_obj.default_select & url_query["select"]
+                if url_query["select"]
+                else query_obj.default_select
+            )
 
             if select_list:
                 return ["select=" + ",".join(select_list)]
@@ -56,6 +58,11 @@ class QueryBuilder:
                 return f"{key_obj.name}={operator}.{query_value}"
 
             aggregate_query = []
+
+            print("url_query", url_query)
+            if url_query["where"]:
+                for key, item in url_query["where"].items():
+                    aggregate_query.append(dict_to_filter_str(key, item))
             if "where" in base_query:
                 for key, item in base_query["where"].items():
                     aggregate_query.append(dict_to_filter_str(key, item))

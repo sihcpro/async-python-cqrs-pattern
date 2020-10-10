@@ -8,13 +8,14 @@ from .base import BaseQuery
 
 
 class PostgrestQuery(BaseQuery):
+    query_builder = QueryBuilder()
+
     def __init__(self, domain, backend, ssl=False):
         super().__init__()
         self.__domain = domain
         self.__backend = backend
         self.__init_session(ssl)
         self.__init__header()
-        self.query_builder = QueryBuilder()
 
     def __init_session(self, ssl=False):
         self.__session = requests.Session()
