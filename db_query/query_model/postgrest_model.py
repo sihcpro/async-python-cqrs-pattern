@@ -4,16 +4,16 @@ from sanic import request
 from auth import UserInfo
 
 from ..builder import QueryBuilder
-from .base import BaseQuery
+from ..cfg import config
+from .base_model import BaseQueryModel
 
 
-class PostgrestQuery(BaseQuery):
+class PostgrestQueryModel(BaseQueryModel):
     query_builder = QueryBuilder()
 
-    def __init__(self, domain, backend, ssl=False):
+    def __init__(self, postgrest_uri=config.DEFAULT_POSTGREST_URI, ssl=False):
         super().__init__()
-        self.__domain = domain
-        self.__backend = backend
+        self.__postgrest_uri = postgrest_uri
         self.__init_session(ssl)
         self.__init__header()
 
@@ -50,4 +50,4 @@ class PostgrestQuery(BaseQuery):
         return resp.json()
 
     def __get_path(self, query_str: str = ""):
-        return f"{self.__backend}/{self.table}{query_str}"
+        return f"{self.__postgrest_uri}/{self.table}{query_str}"

@@ -5,7 +5,7 @@ from auth import UserInfo
 from .. import field
 
 
-class BaseQuery:
+class BaseQueryModel:
     # Register endpoint
     __table__: str = None
     __endpoint__: str = None
@@ -23,8 +23,8 @@ class BaseQuery:
 
     def __init__(self):
         self.identifier: str = None
-        self.key: dict = {}
-        self.default_select: set = set([])
+        self.keys: dict = {}
+        self.default_select: str = None
 
         if self.__table__ is None:
             raise ValueError(f"Missing table value in '{self.__class__.__name__}'")
@@ -36,11 +36,7 @@ class BaseQuery:
             if isinstance(obj, field.QueryField):
                 if obj.name is None:
                     obj.name = key_name
-
-                self.key[key_name] = obj
-
-                if not obj.is_hidden:
-                    self.default_select.add(obj.name)
+                self.keys[key_name] = obj
                 if obj.is_identifier:
                     self.identifier = key_name
 
@@ -48,7 +44,7 @@ class BaseQuery:
             raise ValueError(f"Missing identifier in '{self.__class__.__name__}'")
 
     def get(self, key_name: str) -> field.QueryField:
-        return self.key.get(key_name, None)
+        return self.keys.get(key_name, None)
 
     async def query_resource(self) -> list:
         raise NotImplementedError
@@ -61,6 +57,20 @@ class BaseQuery:
 
     def base_query(self, user: UserInfo, request: request) -> dict:
         return {}
+
+    def get_default_select(self) -> set:
+        if self.default_select is not None:
+            return self.default_select
+        else:
+            select_key = []
+            for key, obj in self.keys.items():
+                select_key.append(
+                    f"{key}:{obj.table}({obj.embedded_query.get_default_select()})"
+                    if isinstance(obj, field.EmbeddedField)
+                    else (key if key == obj.name else f'"{obj.name}".{key}')
+                )
+            self.default_select = set(select_key)
+            return self.default_select
 
     @property
     def table(self):

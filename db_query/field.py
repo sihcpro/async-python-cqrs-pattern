@@ -52,9 +52,10 @@ class JsonField(QueryField):
 
 
 class EmbeddedField(QueryField):
-    def __init__(self, source, foreign_key, **kwargs):
+    def __init__(self, embedded_query, foreign_key: str = None, **kwargs):
         self.foreign_key = foreign_key
-        super().__init__(source=source, **kwargs)
+        self.embedded_query = embedded_query
+        super().__init__(source=embedded_query.endpoint, **kwargs)
 
 
 class TextSearchField(QueryField):

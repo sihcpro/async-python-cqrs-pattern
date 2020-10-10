@@ -1,7 +1,9 @@
 from .. import field
 
+from .postgrest_model import PostgrestQueryModel
 
-class TrackingQuery:
+
+class TrackingModel:
     _creator = field.DatetimeField(hidden=True)
     _updater = field.DatetimeField(hidden=True)
 
@@ -9,3 +11,7 @@ class TrackingQuery:
     _updated = field.DatetimeField(hidden=True)
     _deleted = field.DatetimeField(hidden=True)
     _etag = field.DatetimeField(hidden=True)
+
+
+class PostgrestTrackingQueryModel(PostgrestQueryModel, TrackingModel):
+    pass

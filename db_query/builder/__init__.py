@@ -2,7 +2,7 @@ from base.exceptions import BadRequestException
 from json import loads
 
 from ..cfg import logger, config
-from ..query import BaseQuery
+from ..query_model import BaseQueryModel
 
 
 def load_query(query_url: dict, query_key: str, default=None):
@@ -13,7 +13,9 @@ def load_query(query_url: dict, query_key: str, default=None):
 
 
 class QueryBuilder:
-    def build(self, query_obj: BaseQuery, query_url: dict, base_query: dict) -> str:
+    def build(
+        self, query_obj: BaseQueryModel, query_url: dict, base_query: dict
+    ) -> str:
         url_query = {
             "select": set(load_query(query_url, "select", [])),
             "order": set(load_query(query_url, "order", [])),
@@ -28,9 +30,9 @@ class QueryBuilder:
             # select_list = url_query["select"]
 
             select_list = (
-                query_obj.default_select & url_query["select"]
+                query_obj.get_default_select() & url_query["select"]
                 if url_query["select"]
-                else query_obj.default_select
+                else query_obj.get_default_select()
             )
 
             if select_list:
