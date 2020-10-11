@@ -65,7 +65,8 @@ class BaseQueryModel:
             select_key = []
             for key, obj in self.keys.items():
                 select_key.append(
-                    f"{key}:{obj.table}({obj.embedded_query.get_default_select()})"
+                    f"{key}:{obj.embedded_query.table}"
+                    f"({','.join(obj.embedded_query.get_default_select())})"
                     if isinstance(obj, field.EmbeddedField)
                     else (key if key == obj.name else f'"{obj.name}".{key}')
                 )
