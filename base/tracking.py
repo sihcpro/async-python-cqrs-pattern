@@ -2,6 +2,8 @@ from datetime import datetime
 from pyrsistent import field
 from sqlalchemy.dialects.postgresql import UUID
 
+from base.type import nullable
+
 from .data import PayloadData
 from .hashes import generate_v1
 from .identifier import UUID_TYPE
@@ -27,6 +29,7 @@ class TrackingPayloadData(PayloadData):
 
     _created = field(datetime, mandatory=True)
     _updated = field(datetime, mandatory=True)
+    _deleted = field(nullable(datetime))
 
     _etag = field(str, mandatory=True, initial=generate_v1)
 
