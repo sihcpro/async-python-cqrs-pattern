@@ -21,6 +21,8 @@ class BaseQueryModel:
     __soft_delete__: List[str] = None
     __identifier_column__: str = "_id"
 
+    _created = field.DatetimeField()
+
     def __init__(self):
         self.identifier: str = None
         self.keys: dict = {}
