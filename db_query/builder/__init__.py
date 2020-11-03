@@ -29,11 +29,7 @@ class QueryBuilder:
         def build_select():
             # select_list = url_query["select"]
 
-            select_list = (
-                query_obj.get_default_select() & url_query["select"]
-                if url_query["select"]
-                else query_obj.get_default_select()
-            )
+            select_list = query_obj.get_select(url_query["select"])
 
             if select_list:
                 return ["select=" + ",".join(select_list)]
@@ -57,7 +53,7 @@ class QueryBuilder:
                         message=f"Operator {operator_key} is not exists in filter",
                     )
 
-                return f"{key_obj.name}={operator}.{query_value}"
+                return f"{key_obj.key_name}={operator}.{query_value}"
 
             aggregate_query = []
 

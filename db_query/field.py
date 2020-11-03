@@ -5,14 +5,27 @@ class QueryField:
     __allowed_operator__: list = []
 
     def __init__(
-        self, name: str = None, identifier: bool = False, hidden: bool = False, **kwargs
+        self,
+        show_name: str = None,
+        identifier: bool = False,
+        hidden: bool = False,
+        **kwargs
     ):
+        self.key_name: str = None
         self.source = kwargs.get("source", "root")
-        self.name = name
+        self.show_name = show_name
+        self.is_same_name = None
         self.is_identifier = identifier
         self.is_hidden = hidden
 
         self.__operator__ = Operator.get_operator(self.__allowed_operator__)
+
+    def init(self, key_name: str):
+        self.key_name = key_name
+        self.is_same_name = False
+        if self.show_name is None:
+            self.show_name = self.key_name
+            self.is_same_name = True
 
     @classmethod
     def get_operator(cls, operator_name: str) -> str:
