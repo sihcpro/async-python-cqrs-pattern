@@ -14,3 +14,17 @@ def to_datetime(value, date_fmt=config.DATETIME_FORMAT) -> datetime:
     if isinstance(value, datetime):
         return value
     return datetime.strptime(value, date_fmt)
+
+
+def to_int(value) -> int:
+    try:
+        return int(value)
+    except ValueError:
+        return 0
+
+
+def to_float(value) -> float:
+    try:
+        return float(value)
+    except ValueError:
+        return 0
