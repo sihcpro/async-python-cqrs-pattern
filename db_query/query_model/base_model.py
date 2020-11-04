@@ -81,7 +81,7 @@ class BaseQueryModel:
         for embedded_name, embedded_field_list in embedded_map.items():
             obj = self.get(embedded_name)
             select_list.append(
-                f'"{obj.show_name}":{obj.embedded_query.table}'
+                f'"{obj.show_name}":"{obj.embedded_query.table}"'
                 f"({','.join(obj.embedded_query.get_select(embedded_field_list))})"
             )
 
@@ -100,13 +100,13 @@ class BaseQueryModel:
         self.select_map = {}
         for show_name, obj in self.keys.items():
             self.select_map[show_name] = (
-                f'"{show_name}":{obj.embedded_query.table}'
+                f'"{show_name}":"{obj.embedded_query.table}"'
                 f"({','.join(obj.embedded_query.get_default_select())})"
                 if isinstance(obj, field.EmbeddedField)
                 else (
                     obj.key_name
                     if obj.is_same_name
-                    else f'"{show_name}".{obj.key_name}'
+                    else f'"{show_name}":"{obj.key_name}"'
                 )
             )
         print("-->", self.select_map)
