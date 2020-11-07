@@ -53,6 +53,8 @@ class QueryBuilder:
                         message=f"Operator {operator_key} is not exists in filter",
                     )
 
+                if query_value is None:
+                    query_value = "null"
                 return f"{key_obj.key_name}={operator}.{query_value}"
 
             aggregate_query = []

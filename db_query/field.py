@@ -2,7 +2,7 @@ from .operator import Operator
 
 
 class QueryField:
-    __allowed_operator__: list = []
+    __allowed_operator__: set = {}
 
     def __init__(
         self,
@@ -32,24 +32,24 @@ class QueryField:
         return Operator.get_value(operator_name)
 
 
-class IntField(QueryField):
-    __allowed_operator__ = ["eq"]
-
-
 class BooleanField(QueryField):
-    __allowed_operator__ = ["eq"]
+    __allowed_operator__ = {"is", "eq", "neq"}
 
 
-class FloatField(QueryField):
-    __allowed_operator__ = ["eq"]
+class IntField(QueryField):
+    __allowed_operator__ = {"eq", "is", "gt", "gte", "lt", "lte", "neq"}
+
+
+class FloatField(IntField):
+    pass
+
+
+class DatetimeField(IntField):
+    pass
 
 
 class StringField(QueryField):
-    __allowed_operator__ = ["eq"]
-
-
-class DatetimeField(StringField):
-    pass
+    __allowed_operator__ = {"is", "eq", "neq"}
 
 
 class UUIDField(StringField):
@@ -64,12 +64,12 @@ class JsonField(QueryField):
     pass
 
 
+class TextSearchField(QueryField):
+    __allowed_operator__ = ["search"]
+
+
 class EmbeddedField(QueryField):
     def __init__(self, EmbeddedQueryClass, foreign_key: str = None, **kwargs):
         self.foreign_key = foreign_key
         self.embedded_query = EmbeddedQueryClass()
         super().__init__(source=self.embedded_query.endpoint, **kwargs)
-
-
-class TextSearchField(QueryField):
-    __allowed_operator__ = ["search"]

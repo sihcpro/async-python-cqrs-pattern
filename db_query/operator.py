@@ -1,5 +1,14 @@
 class Operator:
-    __ops__ = {"eq": "eq", "search": "fts"}
+    __ops__ = {
+        "search": "fts",
+        "is": "is",
+        "eq": "eq",
+        "gt": "gt",
+        "gte": "gte",
+        "lt": "lt",
+        "lte": "lte",
+        "neq": "neq",
+    }
 
     @classmethod
     def get_operator(cls, list_ops: list) -> dict:
