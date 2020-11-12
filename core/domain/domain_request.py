@@ -13,20 +13,19 @@ class DomainRequest(DomainProcess):
     def handle_request_data(cls, request):
         content_type = request.headers["content-type"]
         if content_type.startswith("application/json"):
-            data = request.json
+            return request.json
         elif content_type.startswith("multipart/form-data"):
             data = {}
             data.update(request.files)
             data.update(request.form)
-        return data
+            return data
 
     @classmethod
     def register_domain_endpoint(cls, app):
         logger.debug("%s '%s' %s" % ("Reg", cls.__namespace__, "Domain"))
 
         resource_path = (
-            rf"/{cls.__namespace__}:<command:[A-z0-9\-_]*>"
-            r"/<resource:[A-z0-9\-_]*>"
+            rf"/{cls.__namespace__}:<command:[A-z0-9\-_]*>" r"/<resource:[A-z0-9\-_]*>"
         )
         item_path = rf"{resource_path}/<identifier:[0-9A-Fa-f\-_]*>"
 
@@ -55,7 +54,5 @@ class DomainRequest(DomainProcess):
 
         app.add_route(_command_ingress, resource_path, methods=["POST"])
         app.add_route(
-            _command_ingress,
-            item_path,
-            methods=["POST", "PUT", "PATCH", "DELETE"],
+            _command_ingress, item_path, methods=["POST", "PUT", "PATCH", "DELETE"],
         )

@@ -44,6 +44,10 @@ class FloatField(IntField):
     pass
 
 
+class DateField(IntField):
+    pass
+
+
 class DatetimeField(IntField):
     pass
 

@@ -109,7 +109,6 @@ class BaseQueryModel:
                     else f'"{show_name}":"{obj.key_name}"'
                 )
             )
-        print("-->", self.select_map)
 
     @property
     def table(self):

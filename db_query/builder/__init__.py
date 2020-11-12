@@ -59,7 +59,6 @@ class QueryBuilder:
 
             aggregate_query = []
 
-            print("url_query", url_query)
             if url_query["where"]:
                 for key, item in url_query["where"].items():
                     aggregate_query.append(dict_to_filter_str(key, item))
