@@ -19,6 +19,7 @@ class AppResponse(HTTPResponse):
         self,
         body: dict = None,
         data: dict = None,
+        meta: dict = None,
         status: int = STATUS,
         body_bytes: str = b"",
         dumps=DUMP,
@@ -26,8 +27,12 @@ class AppResponse(HTTPResponse):
         **kwargs,
     ):
         if body is None:
-            _data = data or {}
-            body = {"status": 200, "data": _data, "messsage": "OK"}
+            _data = data if data is not None else {}
+            body = {
+                "status": 200,
+                "data": {"items": _data, "meta": meta or {}},
+                "messsage": "OK",
+            }
         body = dumps(body, **kwargs)
         super().__init__(
             body=body,

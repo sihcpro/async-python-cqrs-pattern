@@ -60,10 +60,7 @@ class BaseQueryModel:
     def base_query(self, user: UserInfo, request: request) -> dict:
         return {}
 
-    def get_select(self, select_key: list = None) -> set:
-        if not select_key:
-            return self.get_default_select()
-
+    def get_select(self, select_key: list) -> set:
         self.select_map or self.init_select_map()
         select_list = []
         embedded_map = {}

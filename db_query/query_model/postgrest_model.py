@@ -1,9 +1,10 @@
+from base.response import AppResponse
 import requests
 from sanic import request
 
 from auth import UserInfo
 
-from ..builder import QueryBuilder
+from ..query_builder import QueryBuilder
 from ..cfg import config
 from .base_model import BaseQueryModel
 
@@ -31,25 +32,41 @@ class PostgrestQueryModel(BaseQueryModel):
         self.__list_header = self.ITEM_HEADER if self.only_one else self.LIST_HEADER
         self.__item_header = self.LIST_HEADER if self.item_is_list else self.ITEM_HEADER
 
+    def to_response(self, resp, query_obj):
+        data = resp.json()
+        content_range = resp.headers["Content-Range"].split("/")
+        resp_len = 1 if content_range[1] == "*" else int(content_range[1])
+        return AppResponse(
+            data=data,
+            meta={
+                "total": resp_len,
+                "offset": query_obj["offset"],
+                "limit": query_obj["limit"],
+            },
+            headers={"Content-Range": resp.headers["Content-Range"]},
+        )
+
     async def query_resource_list(
         self, request: request, user: UserInfo
     ) -> requests.Response:
-        query_str = self.QUERY_BUILDER.build(
+        query_obj = self.QUERY_BUILDER.build(
             self, request, self.base_query(user, request)
         )
-        return self.__session.get(
-            self.__get_path(query_str), headers=self.__list_header
+        resp = self.__session.get(
+            self.__get_path(query_obj), headers=self.__list_header
         )
+        return self.to_response(resp, query_obj)
 
     async def query_resource_item(
         self, request: request, user: UserInfo, identifier: str
     ) -> requests.Response:
-        query_str = self.QUERY_BUILDER.build(
+        query_obj = self.QUERY_BUILDER.build(
             self, request, self.base_query(user, request)
         )
-        return self.__session.get(
-            self.__get_path(query_str), headers=self.__item_header
+        resp = self.__session.get(
+            self.__get_path(query_obj), headers=self.__item_header
         )
+        return self.to_response(resp, query_obj)
 
-    def __get_path(self, query_str: str = ""):
-        return f"{self.__postgrest_uri}/{self.table}{query_str}"
+    def __get_path(self, query_obj: str = ""):
+        return f"{self.__postgrest_uri}/{self.table}{query_obj}"

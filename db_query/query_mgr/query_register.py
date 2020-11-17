@@ -1,7 +1,6 @@
-from auth import UserInfo
 from base.response_handler import ResponseHandler
-from base.response import AppResponse
 
+from auth import UserInfo
 from ..cfg import logger
 from ..query_model import BaseQueryModel
 from .query_base import QueryBase
@@ -27,22 +26,14 @@ class QueryRegister(QueryBase):
         @ResponseHandler.handler
         @object_authen
         async def register_query_resource_list(request, user: UserInfo):
-            resp = await obj.query_resource_list(request, user)
-            return AppResponse(
-                data=resp.json(),
-                headers={"Content-Range": resp.headers["Content-Range"]},
-            )
+            return await obj.query_resource_list(request, user)
 
         @ResponseHandler.handler
         @object_authen
         async def register_query_resource_item(
             request, user: UserInfo, identifier: str
         ):
-            resp = await obj.query_resource_item(request, user, identifier)
-            return AppResponse(
-                data=resp.json(),
-                headers={"Content-Range": resp.headers["Content-Range"]},
-            )
+            return await obj.query_resource_item(request, user, identifier)
 
         @ResponseHandler.handler
         async def register_query_meta(request):

@@ -1,7 +1,8 @@
+from db_query.query_builder.object import QueryObject
 from base.exceptions import BadRequestException
 from json import loads
 
-from ..cfg import logger, config
+from ..cfg import config
 from ..query_model import BaseQueryModel
 
 
@@ -14,33 +15,35 @@ def load_query(query_url: dict, query_key: str, default=None):
 
 class QueryBuilder:
     def build(
-        self, query_obj: BaseQueryModel, query_url: dict, base_query: dict
-    ) -> str:
+        self, model_obj: BaseQueryModel, query_url: dict, base_query: dict
+    ) -> QueryObject:
         url_query = {
             "select": set(load_query(query_url, "select", [])),
-            "order": set(load_query(query_url, "order", [])),
+            "order": set(load_query(query_url, "order", model_obj.order)),
             "where": load_query(query_url, "where", {}),
             "limit": int(
                 load_query(query_url, "limit", base_query.get("limit", config.LIMIT))
             ),
             "offset": int(load_query(query_url, "offset", base_query.get("offset", 0))),
         }
+        query_obj = QueryObject()
 
         def build_select():
             # select_list = url_query["select"]
 
-            select_list = query_obj.get_select(url_query["select"])
-
+            select_list = (
+                model_obj.get_select(url_query["select"])
+                if url_query["select"]
+                else model_obj.get_default_select()
+            )
             if select_list:
-                return ["select=" + ",".join(select_list)]
-            else:
-                return []
+                query_obj["select"] = select_list
 
         def build_filter():
             def dict_to_filter_str(query_key: str, query_value: str) -> str:
                 key_name, operator_key = query_key.split(":")
 
-                key_obj = query_obj.get(key_name)
+                key_obj = model_obj.get(key_name)
                 if key_obj is None:
                     raise BadRequestException(
                         errcode=400851,
@@ -55,20 +58,19 @@ class QueryBuilder:
 
                 if query_value is None:
                     query_value = "null"
-                return f"{key_obj.key_name}={operator}.{query_value}"
-
-            aggregate_query = []
+                return key_obj.key_name, f"{operator}.{query_value}"
 
             if url_query["where"]:
-                for key, item in url_query["where"].items():
-                    aggregate_query.append(dict_to_filter_str(key, item))
+                for key, value in url_query["where"].items():
+                    filter_key, filter_value = dict_to_filter_str(key, value)
+                    query_obj[filter_key] = filter_value
             if "where" in base_query:
-                for key, item in base_query["where"].items():
-                    aggregate_query.append(dict_to_filter_str(key, item))
-            return aggregate_query
+                for key, value in base_query["where"].items():
+                    filter_key, filter_value = dict_to_filter_str(key, value)
+                    query_obj[filter_key] = filter_value
 
         def build_order():
-            order_list = url_query["order"] if url_query["order"] else query_obj.order
+            order_list = url_query["order"]
             parsed_order_list = []
             if order_list:
                 for field in order_list:
@@ -77,7 +79,7 @@ class QueryBuilder:
                         asc = False
                         field = field[1:]
 
-                    if query_obj.get(field) is None:
+                    if model_obj.get(field) is None:
                         raise BadRequestException(
                             errcode=400854,
                             message=f"Key {field} is not exists in order",
@@ -86,26 +88,18 @@ class QueryBuilder:
                     parsed_order_list.append(f"{field}.{'asc' if asc else 'desc'}")
 
             if parsed_order_list:
-                return [f"order={','.join(parsed_order_list)}"]
-            return []
+                query_obj["order"] = parsed_order_list
 
         def build_object_attribute():
-            obj_query = []
-
-            if query_obj.only_one:
+            if model_obj.only_one:
                 url_query["limit"] = 1
 
-            obj_query.append(f"limit={url_query['limit']}")
-            obj_query.append(f"offset={url_query['offset']}")
+            query_obj["limit"] = url_query["limit"]
+            query_obj["offset"] = url_query["offset"]
 
-            return obj_query
+        build_select()
+        build_filter()
+        build_order()
+        build_object_attribute()
 
-        query_list = []
-        query_list.extend(build_select())
-        query_list.extend(build_filter())
-        query_list.extend(build_order())
-        query_list.extend(build_object_attribute())
-
-        query_str = "?" + "&".join(query_list)
-        logger.debug("query str: %r", query_str)
-        return query_str
+        return query_obj
