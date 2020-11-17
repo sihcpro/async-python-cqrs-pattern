@@ -48,10 +48,10 @@ class BaseQueryModel:
     def get(self, show_name: str) -> field.QueryField:
         return self.keys.get(show_name, None)
 
-    async def query_resource(self) -> list:
+    async def query_resource_list(self) -> list:
         raise NotImplementedError
 
-    async def query_item(self, identifier: str) -> dict:
+    async def query_resource_item(self, identifier: str) -> dict:
         raise NotImplementedError
 
     async def query_meta(self) -> list:

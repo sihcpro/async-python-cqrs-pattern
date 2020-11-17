@@ -10,16 +10,19 @@ def json_dumps(body, **kwargs):
 
 
 class AppResponse(HTTPResponse):
-    content_type = "application/json"
-    headers = ""
+    CONTENT_TYPE = "application/json"
+    HEADERS = {}
+    DUMP = json_dumps
+    STATUS = 200
 
     def __init__(
         self,
         body: dict = None,
         data: dict = None,
-        status: int = 200,
+        status: int = STATUS,
         body_bytes: str = b"",
-        dumps=json_dumps,
+        dumps=DUMP,
+        headers: dict = HEADERS,
         **kwargs,
     ):
         if body is None:
@@ -29,7 +32,7 @@ class AppResponse(HTTPResponse):
         super().__init__(
             body=body,
             status=status,
-            headers=self.headers,
-            content_type=self.content_type,
+            headers=headers,
+            content_type=self.CONTENT_TYPE,
             body_bytes=body_bytes,
         )

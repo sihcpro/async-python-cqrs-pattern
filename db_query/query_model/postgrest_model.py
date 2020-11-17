@@ -9,7 +9,14 @@ from .base_model import BaseQueryModel
 
 
 class PostgrestQueryModel(BaseQueryModel):
-    query_builder = QueryBuilder()
+    QUERY_BUILDER = QueryBuilder()
+
+    NORMAL_HEADER = {"content-type": "json"}
+    LIST_HEADER = {"Prefer": "count=exact", **NORMAL_HEADER}
+    ITEM_HEADER = {
+        "Accept": "application/vnd.pgrst.object+json",
+        **NORMAL_HEADER,
+    }
 
     def __init__(self, postgrest_uri=config.DEFAULT_POSTGREST_URI, ssl=False):
         super().__init__()
@@ -21,33 +28,28 @@ class PostgrestQueryModel(BaseQueryModel):
         self.__session = requests.Session()
 
     def __init__header(self):
-        normal_response = {"content-type": "json"}
-        only_one_response = {
-            "Accept": "application/vnd.pgrst.object+json",
-            **normal_response,
-        }
-        self.__resource_header = only_one_response if self.only_one else normal_response
-        self.__item_header = normal_response if self.item_is_list else only_one_response
+        self.__list_header = self.ITEM_HEADER if self.only_one else self.LIST_HEADER
+        self.__item_header = self.LIST_HEADER if self.item_is_list else self.ITEM_HEADER
 
-    async def query_resource(self, request: request, user: UserInfo) -> list:
-        query_str = self.query_builder.build(
+    async def query_resource_list(
+        self, request: request, user: UserInfo
+    ) -> requests.Response:
+        query_str = self.QUERY_BUILDER.build(
             self, request, self.base_query(user, request)
         )
-        resp = self.__session.get(
-            self.__get_path(query_str), headers=self.__resource_header
+        return self.__session.get(
+            self.__get_path(query_str), headers=self.__list_header
         )
-        return resp.json()
 
-    async def query_item(
+    async def query_resource_item(
         self, request: request, user: UserInfo, identifier: str
-    ) -> list:
-        query_str = self.query_builder.build(
+    ) -> requests.Response:
+        query_str = self.QUERY_BUILDER.build(
             self, request, self.base_query(user, request)
         )
-        resp = self.__session.get(
+        return self.__session.get(
             self.__get_path(query_str), headers=self.__item_header
         )
-        return resp.json()
 
     def __get_path(self, query_str: str = ""):
         return f"{self.__postgrest_uri}/{self.table}{query_str}"

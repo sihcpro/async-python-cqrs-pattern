@@ -21,20 +21,28 @@ class QueryRegister(QueryBase):
         meta_path = rf"{resource_path}(.*):meta"
 
         logger.info(
-            f"Register query endpoint '{resource_path}' " f"with table '{obj.table}'"
+            f"Register query endpoint '{resource_path}' with table '{obj.table}'"
         )
 
         @ResponseHandler.handler
         @object_authen
-        async def register_query_resource(request, user: UserInfo):
-            resp = await obj.query_resource(request, user)
-            return AppResponse(data=resp)
+        async def register_query_resource_list(request, user: UserInfo):
+            resp = await obj.query_resource_list(request, user)
+            return AppResponse(
+                data=resp.json(),
+                headers={"Content-Range": resp.headers["Content-Range"]},
+            )
 
         @ResponseHandler.handler
         @object_authen
-        async def register_query_item(request, user: UserInfo, identifier: str):
-            resp = await obj.query_item(request, user, identifier)
-            return AppResponse(data=resp)
+        async def register_query_resource_item(
+            request, user: UserInfo, identifier: str
+        ):
+            resp = await obj.query_resource_item(request, user, identifier)
+            return AppResponse(
+                data=resp.json(),
+                headers={"Content-Range": resp.headers["Content-Range"]},
+            )
 
         @ResponseHandler.handler
         async def register_query_meta(request):
@@ -43,14 +51,16 @@ class QueryRegister(QueryBase):
 
         if obj.only_one:
             self.__app__.add_route(
-                register_query_resource, resource_path, methods=["GET"]
+                register_query_resource_list, resource_path, methods=["GET"]
             )
         else:
             if obj.no_all is False:
                 self.__app__.add_route(
-                    register_query_resource, resource_path, methods=["GET"]
+                    register_query_resource_list, resource_path, methods=["GET"]
                 )
             if obj.no_item is False:
-                self.__app__.add_route(register_query_item, item_path, methods=["GET"])
+                self.__app__.add_route(
+                    register_query_resource_item, item_path, methods=["GET"]
+                )
             if obj.no_meta is False:
                 self.__app__.add_route(register_query_meta, meta_path, methods=["GET"])
