@@ -17,7 +17,7 @@ class BaseQueryModel:
     __no_meta__: bool = False
 
     # Default value
-    __order__: List[str] = None
+    __order__: List[str] = []
     __soft_delete__: List[str] = None
     __identifier_column__: str = "_id"
 

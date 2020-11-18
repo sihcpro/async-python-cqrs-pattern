@@ -34,8 +34,13 @@ class PostgrestQueryModel(BaseQueryModel):
 
     def to_response(self, resp, query_obj):
         data = resp.json()
-        content_range = resp.headers["Content-Range"].split("/")
-        resp_len = 1 if content_range[1] == "*" else int(content_range[1])
+        content_range = resp.headers.get("Content-Range", "*/*")
+        content_range_length = content_range.split("/")[1]
+        resp_len = (
+            1
+            if content_range_length == "*"
+            else int(content_range_length)
+        )
         return AppResponse(
             data=data,
             meta={
@@ -43,7 +48,7 @@ class PostgrestQueryModel(BaseQueryModel):
                 "offset": query_obj["offset"],
                 "limit": query_obj["limit"],
             },
-            headers={"Content-Range": resp.headers["Content-Range"]},
+            headers={"Content-Range": content_range},
         )
 
     async def query_resource_list(
