@@ -8,9 +8,10 @@ from .entity import Entity
 
 
 class BaseResponse(Entity):
-    data = field(dict, initial=dict, mandatory=True)
+    data = field((dict, tuple), initial=dict, mandatory=True)
     status = field(int, initial=200, mandatory=True)
     message = field(str, initial="OK", mandatory=True)
+    meta = field(dict, initial=dict, mandatory=True)
 
     async def execute(self):
         raise NotImplementedError
@@ -19,8 +20,7 @@ class BaseResponse(Entity):
 class JsonResponse(BaseResponse):
     async def execute(self):
         return AppResponse(
-            body={"status": self.status, "data": self.data, "message": self.message},
-            status=self.status,
+            status=self.status, data=self.data, message=self.message, meta=self.meta
         )
 
 
