@@ -32,10 +32,10 @@ class Proxy:
         return await self.__stagemgr.fetch_from_db(resource, identifier)
 
     def create_response(
-        self, name: str, data: PayloadData
+        self, name: str, data: PayloadData, meta: dict = None, message: str = None
     ) -> Tuple[str, BaseResponse, Entity]:
         Entity = self.__domain.lookup_entity(name)
-        entity = Entity(data=data)
+        entity = Entity(data=data, meta=meta or {}, message=message or "OK")
         handler = self.__domain.lookup_response_handler(Entity)
         return (self.__domain.__namespace__, entity, handler)
 

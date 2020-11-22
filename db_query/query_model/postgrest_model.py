@@ -4,7 +4,7 @@ from sanic import request
 
 from auth import UserInfo
 
-from ..query_builder import QueryBuilder
+from ..query_builder import QueryBuilder, QueryObject
 from ..cfg import config
 from .base_model import BaseQueryModel
 
@@ -32,21 +32,18 @@ class PostgrestQueryModel(BaseQueryModel):
         self.__list_header = self.ITEM_HEADER if self.only_one else self.LIST_HEADER
         self.__item_header = self.LIST_HEADER if self.item_is_list else self.ITEM_HEADER
 
-    def to_response(self, resp, query_obj):
+    def to_response(self, resp, query_obj: QueryObject):
         data = resp.json()
         content_range = resp.headers.get("Content-Range", "*/*")
         content_range_length = content_range.split("/")[1]
-        resp_len = (
-            1
-            if content_range_length == "*"
-            else int(content_range_length)
-        )
+        resp_len = 1 if content_range_length == "*" else int(content_range_length)
         return AppResponse(
             data=data,
             meta={
                 "total": resp_len,
                 "offset": query_obj["offset"],
                 "limit": query_obj["limit"],
+                "order": query_obj["order"],
             },
             headers={"Content-Range": content_range},
         )
