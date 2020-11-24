@@ -2,6 +2,7 @@ from auth.auth import user_auth
 from auth.datadef import UserInfo
 from base.identifier import UUID_GENR
 from base.response_handler import ResponseHandler
+from base.exceptions import BadRequestException
 
 from ..cfg import logger
 from ..datadef import Initiator
@@ -19,6 +20,10 @@ class DomainRequest(DomainProcess):
             data.update(request.files)
             data.update(request.form)
             return data
+        else:
+            raise BadRequestException(
+                errcode=400905, message=f"Content type '{content_type}' is not allowed!"
+            )
 
     @classmethod
     def register_domain_endpoint(cls, app):
