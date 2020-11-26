@@ -14,7 +14,7 @@ class QueryField:
         self.key_name: str = None
         self.source = kwargs.get("source", "root")
         self.show_name = show_name
-        self.is_same_name = None
+        self.is_same_name: bool = None
         self.is_identifier = identifier
         self.is_hidden = hidden
 
@@ -22,10 +22,9 @@ class QueryField:
 
     def init(self, key_name: str):
         self.key_name = key_name
-        self.is_same_name = False
         if self.show_name is None:
             self.show_name = self.key_name
-            self.is_same_name = True
+        self.is_same_name = self.show_name == self.key_name
 
     @classmethod
     def get_operator(cls, operator_name: str) -> str:
