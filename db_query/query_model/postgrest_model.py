@@ -32,21 +32,28 @@ class PostgrestQueryModel(BaseQueryModel):
         self.__list_header = self.ITEM_HEADER if self.only_one else self.LIST_HEADER
         self.__item_header = self.LIST_HEADER if self.item_is_list else self.ITEM_HEADER
 
-    def to_response(self, resp, query_obj: QueryObject):
-        data = resp.json()
-        content_range = resp.headers.get("Content-Range", "*/*")
-        content_range_length = content_range.split("/")[1]
-        resp_len = 1 if content_range_length == "*" else int(content_range_length)
-        return AppResponse(
-            data=data,
-            meta={
-                "total": resp_len,
-                "offset": query_obj["offset"],
-                "limit": query_obj["limit"],
-                "order": query_obj["order"],
-            },
-            headers={"Content-Range": content_range},
-        )
+    def to_response(self, resp, query_obj: QueryObject, is_item=False):
+        if resp.status_code // 100 == 2:
+            data = resp.json()
+            content_range = resp.headers.get("Content-Range", "*/*")
+            content_range_length = content_range.split("/")[1]
+            resp_len = 1 if content_range_length == "*" else int(content_range_length)
+            return AppResponse(
+                data=data,
+                meta={
+                    "total": resp_len,
+                    "offset": query_obj["offset"],
+                    "limit": query_obj["limit"],
+                    "order": query_obj["order"],
+                },
+                headers={"Content-Range": content_range},
+            )
+        else:
+            return AppResponse(
+                data={} if is_item else [],
+                meta={"total": 0, "offset": 0, "limit": 0, "order": query_obj["order"]},
+                headers={"Content-Range": "0/0"},
+            )
 
     async def query_resource_list(
         self, request: request, user: UserInfo

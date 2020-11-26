@@ -87,8 +87,7 @@ class QueryBuilder:
 
                     parsed_order_list.append(f"{field}.{'asc' if asc else 'desc'}")
 
-            if parsed_order_list:
-                query_obj["order"] = parsed_order_list
+            query_obj["order"] = parsed_order_list
 
         def build_object_attribute():
             if model_obj.only_one:

@@ -13,6 +13,8 @@ class QueryObject(dict):
     def __str__(self):
         query_list = []
         for key, value in self.attributes.items():
+            if not value:
+                continue
             if isinstance(value, (set, list)):
                 query_list.append(f"{key}={','.join(value)}")
             else:

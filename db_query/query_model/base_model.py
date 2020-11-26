@@ -1,5 +1,5 @@
 from sanic import request
-from typing import List
+from typing import Dict, List
 
 from auth import UserInfo
 from .. import field
@@ -25,7 +25,7 @@ class BaseQueryModel:
 
     def __init__(self):
         self.identifier: str = None
-        self.keys: dict = {}
+        self.keys: Dict[str, field.QueryField] = {}
         self.default_select: str = None
         self.select_map: dict = None
 
