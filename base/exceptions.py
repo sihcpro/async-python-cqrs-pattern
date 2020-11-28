@@ -1,5 +1,13 @@
+from pyrsistent import _checked_types
+
+from builtins import isinstance
 from .response import AppResponse
-from app.cfg import logger
+
+try:
+    # Follow log level of the app
+    from app.cfg import logger
+except Exception:
+    from .cfg import logger
 
 
 class AppException(Exception):
@@ -53,3 +61,25 @@ class NotFoundException(AppException):
     __status_code__ = 404
     __message__ = "Not found item"
     __debug_info__ = False
+
+
+class ExceptionHandler:
+    @classmethod
+    def handle_common_exception(cls, error: Exception):
+        if isinstance(error, AttributeError):
+            return BadRequestException(
+                errcode=400906, message=f"Missing field {str(error)}"
+            ).resp
+        elif isinstance(error, _checked_types.InvariantException):
+            return BadRequestException(
+                errcode=400907, message=f" Missing field {error.missing_fields[0]}"
+            ).resp
+
+        return AppException(errcode=500902, message=str(error)).resp
+
+    @classmethod
+    def handler(cls, error):
+        if isinstance(error, AppException):
+            return error.resp
+        else:
+            return cls.handle_common_exception(error)
