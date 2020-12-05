@@ -19,6 +19,7 @@ class Mutation:
 
         self.targeter = targeter
         self.data = data
+        self.now = datetime.utcnow()
 
     async def execute(self, statemgr: StateMgr, user: UserInfo):
         raise NotImplementedError
@@ -27,18 +28,17 @@ class Mutation:
 class MutationCreated(Mutation):
     async def execute(self, statemgr: StateMgr, user: UserInfo):
         ResourceClass = statemgr.lookup_resource(self.targeter.resource)
-        now = datetime.utcnow()
         if issubclass(ResourceClass, TrackingPayloadData):
             return ResourceClass.extend_pclass(
                 self.data,
-                _created=now,
-                _updated=now,
+                _created=self.now,
+                _updated=self.now,
                 _creator=user._id,
                 _updater=user._id,
                 _etag=hashes.generate_v1(config.ETAG_LENGTH),
             )
         else:
-            return ResourceClass.extend_pclass(self.data, _created=now,)
+            return ResourceClass.extend_pclass(self.data, _created=self.now,)
 
 
 class MutationUpdated(Mutation):

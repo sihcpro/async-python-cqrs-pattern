@@ -1,3 +1,4 @@
+from base.tracking import TrackingModel
 from base import db, UUID_TYPE
 from base.exceptions import NotFoundException
 
@@ -12,7 +13,9 @@ class StateConnector(StateStore):
     async def fetch_from_db(self, resource: str, identifier: UUID_TYPE) -> Resource:
         ResourceModel = self.lookup_resource(resource)
         item = await ResourceModel.__model__.get(identifier)
-        if item is None:
+        if item is None or (
+            isinstance(item, TrackingModel) and item._deleted is not None
+        ):
             raise NotFoundException(
                 errcode=404904, data={"resource": resource, "identifier": identifier}
             )

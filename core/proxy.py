@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 from base import Model
 from base.identifier import UUID_TYPE
@@ -40,11 +40,14 @@ class Proxy:
         return (self.__domain.__namespace__, entity, handler)
 
     def create_event(
-        self, name: str, data: [PayloadData, dict], targeter: [Targeter, dict]
+        self,
+        name: str,
+        data: Union[PayloadData, dict],
+        targeter: Union[ResourceData, dict],
     ) -> Tuple[str, Event, Entity]:
         targeter = (
             Targeter.extend_pclass(targeter)
-            if isinstance(targeter, PayloadData)
+            if isinstance(targeter, ResourceData)
             else Targeter(**targeter)
         )
 
