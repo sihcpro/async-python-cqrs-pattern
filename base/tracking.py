@@ -14,11 +14,7 @@ class TrackingModel(Model):
     _creator = db.Column(UUID)
     _updater = db.Column(UUID)
 
-    _created = db.Column(db.DateTime(timezone=False))
-    _updated = db.Column(db.DateTime(timezone=False))
     _deleted = db.Column(db.DateTime(timezone=False))
-
-    _etag = db.Column(db.String(255))
 
 
 class TrackingPayloadData(PayloadData):

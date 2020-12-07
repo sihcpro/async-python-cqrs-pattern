@@ -3,7 +3,7 @@ from datetime import datetime
 from auth import UserInfo
 from base import TrackingPayloadData, hashes
 
-from .cfg import config, logger
+from .cfg import config
 from .datadef import Targeter
 from .statemgr.state_manager import StateMgr
 
@@ -38,7 +38,12 @@ class MutationCreated(Mutation):
                 _etag=hashes.generate_v1(config.ETAG_LENGTH),
             )
         else:
-            return ResourceClass.extend_pclass(self.data, _created=self.now,)
+            return ResourceClass.extend_pclass(
+                self.data,
+                _created=self.now,
+                _updated=self.now,
+                _etag=hashes.generate_v1(config.ETAG_LENGTH),
+            )
 
 
 class MutationUpdated(Mutation):
@@ -54,7 +59,6 @@ class MutationDeleted(Mutation):
     async def execute(self, statemgr: StateMgr, user: UserInfo):
         item = await statemgr.fetch(self.targeter.resource, self.targeter.identifier)
         if isinstance(item, TrackingPayloadData):
-            return item.set(_deleted=self.now, _updater=user._id,)
+            return item.set(_deleted=self.now, _updater=user._id)
         else:
-            logger.error("You are trying to delete an un-tracking item")
-            return item
+            return item.set(_created=None)

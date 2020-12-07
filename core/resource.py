@@ -2,6 +2,7 @@ from datetime import datetime
 from pyrsistent import field
 
 from base import UUID_TYPE, Model, PayloadData, TrackingModel, TrackingPayloadData
+from base.hashes import generate_v1
 from base.type import nullable
 
 
@@ -18,6 +19,9 @@ class Resource(BaseResource, PayloadData):
     _id = field(UUID_TYPE, mandatory=True)
 
     _created = field(nullable(datetime))
+    _updated = field(datetime)
+
+    _etag = field(str, mandatory=True, initial=generate_v1)
 
 
 class TrackingResource(BaseResource, TrackingPayloadData):
