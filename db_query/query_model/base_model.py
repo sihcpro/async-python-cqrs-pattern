@@ -22,6 +22,9 @@ class BaseQueryModel:
     __identifier_column__: str = "_id"
 
     _created = field.DatetimeField()
+    _updated = field.DatetimeField()
+
+    _etag = field.DatetimeField(hidden=True)
 
     def __init__(self):
         self.identifier: str = None
