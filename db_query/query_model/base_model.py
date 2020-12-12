@@ -49,7 +49,14 @@ class BaseQueryModel:
             raise ValueError(f"Missing identifier in '{self.__class__.__name__}'")
 
     def get(self, show_name: str) -> field.QueryField:
-        return self.keys.get(show_name, None)
+        dot_position = show_name.find(".")
+        if dot_position == -1:
+            return self.keys.get(show_name, None)
+        else:
+            embedded_name = show_name[:dot_position]
+            field_name = show_name[dot_position + 1 :]
+            key: field.EmbeddedField = self.keys.get(embedded_name, None)
+            return key.embedded_query.get(field_name)
 
     async def query_resource_list(self) -> list:
         raise NotImplementedError

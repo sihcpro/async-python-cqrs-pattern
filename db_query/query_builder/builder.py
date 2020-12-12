@@ -41,6 +41,8 @@ class QueryBuilder:
 
         def build_filter():
             def dict_to_filter_str(query_key: str, query_value: str) -> str:
+                if ":" not in query_key:
+                    query_key += ":eq"
                 key_name, operator_key = query_key.split(":")
 
                 key_obj = model_obj.get(key_name)
@@ -58,7 +60,7 @@ class QueryBuilder:
 
                 if query_value is None:
                     query_value = "null"
-                return key_obj.key_name, f"{operator}.{query_value}"
+                return key_name, f"{operator}.{query_value}"
 
             if url_query["where"]:
                 for key, value in url_query["where"].items():
