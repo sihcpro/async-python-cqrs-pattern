@@ -106,6 +106,8 @@ class BaseQueryModel:
     def init_select_map(self):
         self.select_map = {}
         for show_name, obj in self.keys.items():
+            if obj.is_hidden:
+                return True
             self.select_map[show_name] = (
                 f'"{show_name}":"{obj.embedded_query.table}"'
                 f"({','.join(obj.embedded_query.get_default_select())})"

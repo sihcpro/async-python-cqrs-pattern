@@ -3,12 +3,12 @@ from typing import Tuple, Union
 from base import Model
 from base.identifier import UUID_TYPE
 
-from .datadef import PayloadData, Targeter, ResourceData
+from .datadef import PayloadData, ResourceData, Targeter
 from .entity import Entity
 from .event import Event
+from .resource import Resource
 from .response import BaseResponse
 from .statemgr.state_manager import StateMgr
-from .resource import Resource
 
 
 class Proxy:
@@ -32,7 +32,11 @@ class Proxy:
         return await self.__stagemgr.fetch_from_db(resource, identifier)
 
     def create_response(
-        self, name: str, data: PayloadData, meta: dict = None, message: str = None
+        self,
+        name: str,
+        data: Union[PayloadData, dict] = None,
+        meta: dict = None,
+        message: str = None,
     ) -> Tuple[str, BaseResponse, Entity]:
         Entity = self.__domain.lookup_entity(name)
         entity = Entity(data=data, meta=meta or {}, message=message or "OK")
