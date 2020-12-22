@@ -1,15 +1,17 @@
+from base.exceptions import BadRequestException
+
 from .operator import Operator
 
 
 class QueryField:
-    __allowed_operator__: set = {}
+    __allowed_operator__: set = {"in"}
 
     def __init__(
         self,
         show_name: str = None,
         identifier: bool = False,
         hidden: bool = False,
-        **kwargs
+        **kwargs,
     ):
         self.key_name: str = None
         self.source = kwargs.get("source", "root")
@@ -28,15 +30,21 @@ class QueryField:
 
     @classmethod
     def get_operator(cls, operator_name: str) -> str:
-        return Operator.get_value(operator_name)
+        operator_value = Operator.get_value(operator_name)
+        if operator_value is None:
+            raise BadRequestException(
+                errcode=400852,
+                message=f"Operator {operator_value} is not exists in filter",
+            )
+        return operator_value
 
 
 class BooleanField(QueryField):
-    __allowed_operator__ = {"is", "eq", "neq"}
+    __allowed_operator__ = {"in", "is", "eq", "neq"}
 
 
 class IntField(QueryField):
-    __allowed_operator__ = {"eq", "is", "gt", "gte", "lt", "lte", "neq"}
+    __allowed_operator__ = {"in", "is", "eq", "neq", "gt", "gte", "lt", "lte"}
 
 
 class FloatField(IntField):
@@ -52,7 +60,7 @@ class DatetimeField(IntField):
 
 
 class StringField(QueryField):
-    __allowed_operator__ = {"is", "eq", "neq"}
+    __allowed_operator__ = {"in", "is", "eq", "neq"}
 
 
 class UUIDField(StringField):
@@ -60,7 +68,7 @@ class UUIDField(StringField):
 
 
 class ArrayField(QueryField):
-    pass
+    __allowed_operator__ = {"contains", "contained"}
 
 
 class JsonField(QueryField):

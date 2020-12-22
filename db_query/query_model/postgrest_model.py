@@ -1,11 +1,10 @@
-from base.response import AppResponse
 import requests
 from sanic import request
 
 from auth import UserInfo
-
-from ..query_builder import QueryBuilder, QueryObject
+from base.response import AppResponse
 from ..cfg import config
+from ..query_builder import QueryBuilder, QueryObject
 from .base_model import BaseQueryModel
 
 
@@ -59,7 +58,7 @@ class PostgrestQueryModel(BaseQueryModel):
         self, request: request, user: UserInfo
     ) -> requests.Response:
         query_obj = self.QUERY_BUILDER.build(
-            self, request, self.base_query(user, request)
+            self, request.args, self.base_query(user, request)
         )
         resp = self.__session.get(
             self.__get_path(query_obj), headers=self.__list_header
@@ -69,8 +68,12 @@ class PostgrestQueryModel(BaseQueryModel):
     async def query_resource_item(
         self, request: request, user: UserInfo, identifier: str
     ) -> requests.Response:
+        kwargs = {"identifier": identifier}
+        kwargs.update(identifier=identifier)
+        if self.item_is_list is False:
+            kwargs["limit"] = 1
         query_obj = self.QUERY_BUILDER.build(
-            self, request, self.base_query(user, request)
+            self, request.args, self.base_query(user, request), **kwargs
         )
         resp = self.__session.get(
             self.__get_path(query_obj), headers=self.__item_header

@@ -1,6 +1,6 @@
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 
-from base import TrackingModel, Model, db
+from base import Model, TrackingModel, db
 
 from .cfg import config
 
@@ -27,6 +27,8 @@ class UserModel(TrackingModel):
     is_verified__phone = db.Column(db.Boolean())
     is_verified__email = db.Column(db.Boolean())
 
+    followers = db.Column(ARRAY(UUID))
+
 
 class UserAuthModel(Model):
     __table_args__ = dict(schema=config.SCHEMA_NAME)
@@ -34,7 +36,8 @@ class UserAuthModel(Model):
 
     _id = db.Column(UUID, primary_key=True)
     user_id = db.Column(
-        UUID, db.ForeignKey(f'{config.get_module_config("app").SCHEMA_NAME}.user._id'),
+        UUID,
+        db.ForeignKey(f'{config.get_module_config("app").SCHEMA_NAME}.user._id'),
     )
 
     auth_key = db.Column(db.String(255))

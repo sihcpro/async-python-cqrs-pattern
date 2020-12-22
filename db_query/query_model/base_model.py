@@ -21,9 +21,6 @@ class BaseQueryModel:
     __soft_delete__: List[str] = None
     __identifier_column__: str = "_id"
 
-    _created = field.DatetimeField()
-    _updated = field.DatetimeField()
-
     _etag = field.DatetimeField(hidden=True)
 
     def __init__(self):
@@ -107,7 +104,7 @@ class BaseQueryModel:
         self.select_map = {}
         for show_name, obj in self.keys.items():
             if obj.is_hidden:
-                return True
+                continue
             self.select_map[show_name] = (
                 f'"{show_name}":"{obj.embedded_query.table}"'
                 f"({','.join(obj.embedded_query.get_default_select())})"

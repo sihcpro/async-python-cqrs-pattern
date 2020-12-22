@@ -1,22 +1,24 @@
-from db_query.query_builder.object import QueryObject
-from base.exceptions import BadRequestException
 from json import loads
 
+from base.exceptions import BadRequestException
+from db_query.operator import Operator
+from db_query.query_builder.object import QueryObject
 from ..cfg import config
 from ..query_model import BaseQueryModel
 
 
 def load_query(query_url: dict, query_key: str, default=None):
     try:
-        return loads(query_url.args.get(query_key))
+        return loads(query_url.get(query_key))
     except Exception:
         return default
 
 
 class QueryBuilder:
     def build(
-        self, model_obj: BaseQueryModel, query_url: dict, base_query: dict
+        self, model_obj: BaseQueryModel, query_url: dict, base_query: dict, **kwargs
     ) -> QueryObject:
+        query_url.update(kwargs)
         url_query = {
             "select": set(load_query(query_url, "select", [])),
             "order": set(load_query(query_url, "order", model_obj.order)),
@@ -25,6 +27,7 @@ class QueryBuilder:
                 load_query(query_url, "limit", base_query.get("limit", config.LIMIT))
             ),
             "offset": int(load_query(query_url, "offset", base_query.get("offset", 0))),
+            "identifier": query_url.get("identifier", None),
         }
         query_obj = QueryObject()
 
@@ -52,14 +55,10 @@ class QueryBuilder:
                         message=f"Key {key_name} is not exists in filter",
                     )
                 operator = key_obj.get_operator(operator_key)
-                if operator is None:
-                    raise BadRequestException(
-                        errcode=400852,
-                        message=f"Operator {operator_key} is not exists in filter",
-                    )
 
                 if query_value is None:
                     query_value = "null"
+                query_value = Operator.handle_value(operator, query_value)
                 return key_name, f"{operator}.{query_value}"
 
             if url_query["where"]:
@@ -70,6 +69,8 @@ class QueryBuilder:
                 for key, value in base_query["where"].items():
                     filter_key, filter_value = dict_to_filter_str(key, value)
                     query_obj[filter_key] = filter_value
+            if url_query["identifier"] is not None:
+                query_obj[model_obj.identifier] = f"eq.{url_query['identifier']}"
 
         def build_order():
             order_list = url_query["order"]
