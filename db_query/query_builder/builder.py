@@ -18,16 +18,28 @@ class QueryBuilder:
     def build(
         self, model_obj: BaseQueryModel, query_url: dict, base_query: dict, **kwargs
     ) -> QueryObject:
-        query_url.update(kwargs)
+
         url_query = {
             "select": set(load_query(query_url, "select", [])),
             "order": set(load_query(query_url, "order", model_obj.order)),
             "where": load_query(query_url, "where", {}),
-            "limit": int(
-                load_query(query_url, "limit", base_query.get("limit", config.LIMIT))
+            "limit": (
+                kwargs.get(
+                    "limit",
+                    int(
+                        load_query(
+                            query_url, "limit", base_query.get("limit", config.LIMIT)
+                        )
+                    ),
+                )
             ),
-            "offset": int(load_query(query_url, "offset", base_query.get("offset", 0))),
-            "identifier": query_url.get("identifier", None),
+            "offset": (
+                kwargs.get(
+                    "offset",
+                    int(load_query(query_url, "offset", base_query.get("offset", 0))),
+                )
+            ),
+            "identifier": kwargs.get("identifier", None),
         }
         query_obj = QueryObject()
 

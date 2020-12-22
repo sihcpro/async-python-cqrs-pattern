@@ -68,7 +68,7 @@ class PostgrestQueryModel(BaseQueryModel):
     async def query_resource_item(
         self, request: request, user: UserInfo, identifier: str
     ) -> requests.Response:
-        kwargs = {"identifier": identifier}
+        kwargs = {"identifier": identifier, "offset": 0}
         kwargs.update(identifier=identifier)
         if self.item_is_list is False:
             kwargs["limit"] = 1
