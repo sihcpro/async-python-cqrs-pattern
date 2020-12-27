@@ -28,6 +28,8 @@ class BaseQueryModel:
         self.keys: Dict[str, field.QueryField] = {}
         self.default_select: str = None
         self.select_map: dict = None
+        self.default_query_data: dict = None
+        self.base_query_data: dict = None
 
         if self.__table__ is None:
             raise ValueError(f"Missing table value in '{self.__class__.__name__}'")
@@ -64,8 +66,15 @@ class BaseQueryModel:
     async def query_meta(self) -> list:
         raise NotImplementedError
 
+    def default_query(self, user: UserInfo, request: request) -> dict:
+        return {}
+
     def base_query(self, user: UserInfo, request: request) -> dict:
         return {}
+
+    def generate_query_data(self, user: UserInfo, request: request):
+        self.default_query_data = self.default_query(user, request)
+        self.base_query_data = self.base_query(user, request)
 
     def get_select(self, select_key: list) -> set:
         self.select_map or self.init_select_map()

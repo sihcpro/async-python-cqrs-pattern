@@ -1,4 +1,5 @@
 from json import loads
+from typing import Tuple
 
 from base.exceptions import BadRequestException
 from db_query.operator import Operator
@@ -16,31 +17,16 @@ def load_query(query_url: dict, query_key: str, default=None):
 
 class QueryBuilder:
     def build(
-        self, model_obj: BaseQueryModel, query_url: dict, base_query: dict, **kwargs
+        self, model_obj: BaseQueryModel, query_url: dict, **kwargs
     ) -> QueryObject:
 
         url_query = {
-            "select": set(load_query(query_url, "select", [])),
+            "select": set(load_query(query_url, "select", list())),
             "order": set(load_query(query_url, "order", model_obj.order)),
-            "where": load_query(query_url, "where", {}),
-            "limit": (
-                kwargs.get(
-                    "limit",
-                    int(
-                        load_query(
-                            query_url, "limit", base_query.get("limit", config.LIMIT)
-                        )
-                    ),
-                )
-            ),
-            "offset": (
-                kwargs.get(
-                    "offset",
-                    int(load_query(query_url, "offset", base_query.get("offset", 0))),
-                )
-            ),
-            "identifier": kwargs.get("identifier", None),
+            "where": load_query(query_url, "where", dict()),
         }
+        if "identifier" in kwargs:
+            url_query["where"].update({model_obj.identifier: kwargs["identifier"]})
         query_obj = QueryObject()
 
         def build_select():
@@ -55,7 +41,7 @@ class QueryBuilder:
                 query_obj["select"] = select_list
 
         def build_filter():
-            def dict_to_filter_str(query_key: str, query_value: str) -> str:
+            def dict_to_filter_str(query_key: str, query_value: str) -> Tuple:
                 if ":" not in query_key:
                     query_key += ":eq"
                 key_name, operator_key = query_key.split(":")
@@ -71,18 +57,20 @@ class QueryBuilder:
                 if query_value is None:
                     query_value = "null"
                 query_value = Operator.handle_value(operator, query_value)
-                return key_name, f"{operator}.{query_value}"
+                return key_name, operator, query_value
 
-            if url_query["where"]:
-                for key, value in url_query["where"].items():
-                    filter_key, filter_value = dict_to_filter_str(key, value)
-                    query_obj[filter_key] = filter_value
-            if "where" in base_query:
-                for key, value in base_query["where"].items():
-                    filter_key, filter_value = dict_to_filter_str(key, value)
-                    query_obj[filter_key] = filter_value
-            if url_query["identifier"] is not None:
-                query_obj[model_obj.identifier] = f"eq.{url_query['identifier']}"
+            query = dict()
+            query.update(model_obj.default_query_data.get("where", dict()))
+            query.update(url_query["where"].items())
+            query.update(model_obj.base_query_data.get("where", dict()))
+
+            where_query = {}
+            for key, value in query.items():
+                filter_key, operator, filter_value = dict_to_filter_str(key, value)
+                where_query[filter_key] = where_query.get(filter_key, []) + [
+                    f"{operator}.{filter_value}"
+                ]
+            query_obj["where"] = where_query
 
         def build_order():
             order_list = url_query["order"]
@@ -105,11 +93,23 @@ class QueryBuilder:
             query_obj["order"] = parsed_order_list
 
         def build_object_attribute():
-            if model_obj.only_one:
-                url_query["limit"] = 1
-
-            query_obj["limit"] = url_query["limit"]
-            query_obj["offset"] = url_query["offset"]
+            query_obj["limit"] = (
+                1
+                if model_obj.only_one
+                else (
+                    model_obj.base_query_data.get("limit", None)
+                    or kwargs.get("limit", None)
+                    or int(load_query(query_url, "limit", 0))
+                    or model_obj.default_query_data.get("limit", None)
+                    or config.LIMIT
+                )
+            )
+            query_obj["offset"] = (
+                model_obj.base_query_data.get("offset", None)
+                or kwargs.get("offset", None)
+                or int(load_query(query_url, "offset", 0))
+                or model_obj.default_query_data.get("offset", 0)
+            )
 
         build_select()
         build_filter()
