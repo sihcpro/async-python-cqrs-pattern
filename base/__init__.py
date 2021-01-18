@@ -1,10 +1,11 @@
 from .data import PayloadData
-from .store import Store
+from .identifier import UUID_GENR, UUID_TYPE
 from .model import Model, db
-from .tracking import TrackingModel, TrackingPayloadData, generate_tracking_data
-from .identifier import UUID_TYPE, UUID_GENR
 from .response import HTTPResponse
 from .response_handler import ResponseHandler
+from .store import Store
+from .tracking import TrackingModel, TrackingPayloadData, generate_tracking_data
+from .wrapper import pass_this
 
 __all__ = (
     "PayloadData",
@@ -18,4 +19,5 @@ __all__ = (
     "UUID_GENR",
     "HTTPResponse",
     "ResponseHandler",
+    "pass_this",
 )

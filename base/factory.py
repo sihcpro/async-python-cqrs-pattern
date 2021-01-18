@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import date, datetime
 
 from .cfg import config
 from .identifier import UUID, UUID_TYPE
@@ -48,3 +48,26 @@ def to_nullable_float(value) -> float:
         return float(value)
     except Exception:
         return None
+
+
+def __sif__():
+    boolean_map = {
+        "True": True,
+        "False": False,
+        "true": True,
+        "false": False,
+        "1": True,
+        "0": False,
+        1: True,
+        0: False,
+        True: True,
+        False: False,
+    }
+
+    def _to_boolean(value) -> bool:
+        return boolean_map.get(value, None)
+
+    return _to_boolean
+
+
+to_boolean: bool = __sif__()
