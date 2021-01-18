@@ -1,5 +1,7 @@
+from sanic import Sanic
+
 from .domain_request import DomainRequest
 
 
 class Domain(DomainRequest):
-    pass
+    app: Sanic

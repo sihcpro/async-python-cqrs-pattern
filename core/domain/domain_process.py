@@ -3,7 +3,6 @@ from typing import Any, List, Tuple
 from auth.datadef import UserInfo
 from base.model import db
 from base.store import Store
-
 from ..cfg import logger
 from ..command import Command
 from ..context import Context
@@ -18,8 +17,6 @@ from .domain_register import DomainRegister
 
 
 class DomainProcess(DomainRegister, DomainHandler):
-    __context__: Context
-
     def __init__(self, user: UserInfo, initiator: Initiator):
         self.__store__ = Store()
         self.__context__ = Context(self, user, initiator)
@@ -87,3 +84,7 @@ class DomainProcess(DomainRegister, DomainHandler):
     @property
     def response(self) -> Response:
         return self.__response__
+
+    @property
+    def proxy(self) -> Proxy:
+        return self.__proxy__
