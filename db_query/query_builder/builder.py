@@ -1,8 +1,6 @@
 from json import loads
-from typing import Tuple
 
 from base.exceptions import BadRequestException
-from db_query.operator import Operator
 from db_query.query_builder.object import QueryObject
 from ..cfg import config
 from ..query_model import BaseQueryModel
@@ -27,7 +25,7 @@ class QueryBuilder:
         }
         if "identifier" in kwargs:
             url_query["where"].update({model_obj.identifier: kwargs["identifier"]})
-        query_obj = QueryObject()
+        query_obj = QueryObject(model_obj)
 
         def build_select():
             # select_list = url_query["select"]
@@ -41,35 +39,11 @@ class QueryBuilder:
                 query_obj["select"] = select_list
 
         def build_filter():
-            def dict_to_filter_str(query_key: str, query_value: str) -> Tuple:
-                if ":" not in query_key:
-                    query_key += ":eq"
-                key_name, operator_key = query_key.split(":")
+            where_query = dict()
+            where_query.update(model_obj.default_query_data.get("where", dict()))
+            where_query.update(url_query["where"].items())
+            where_query.update(model_obj.base_query_data.get("where", dict()))
 
-                key_obj = model_obj.get(key_name)
-                if key_obj is None:
-                    raise BadRequestException(
-                        errcode=400851,
-                        message=f"Key {key_name} is not exists in filter",
-                    )
-                operator = key_obj.get_operator(operator_key)
-
-                if query_value is None:
-                    query_value = "null"
-                query_value = Operator.handle_value(operator, query_value)
-                return key_name, operator, query_value
-
-            query = dict()
-            query.update(model_obj.default_query_data.get("where", dict()))
-            query.update(url_query["where"].items())
-            query.update(model_obj.base_query_data.get("where", dict()))
-
-            where_query = {}
-            for key, value in query.items():
-                filter_key, operator, filter_value = dict_to_filter_str(key, value)
-                where_query[filter_key] = where_query.get(filter_key, []) + [
-                    f"{operator}.{filter_value}"
-                ]
             query_obj["where"] = where_query
 
         def build_order():
@@ -77,9 +51,9 @@ class QueryBuilder:
             parsed_order_list = []
             if order_list:
                 for field in order_list:
-                    asc = True
+                    is_asc = True
                     if field.startswith("!"):
-                        asc = False
+                        is_asc = False
                         field = field[1:]
 
                     if model_obj.get(field) is None:
@@ -88,7 +62,7 @@ class QueryBuilder:
                             message=f"Key {field} is not exists in order",
                         )
 
-                    parsed_order_list.append(f"{field}.{'asc' if asc else 'desc'}")
+                    parsed_order_list.append(f"{field}.{'asc' if is_asc else 'desc'}")
 
             query_obj["order"] = parsed_order_list
 

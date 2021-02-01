@@ -44,14 +44,20 @@ class PostgrestQueryModel(BaseQueryModel):
                     "offset": query_obj["offset"],
                     "limit": query_obj["limit"],
                     "order": query_obj["order"],
-                    "where": str(query_obj),
+                    "where": query_obj["where"],
                 },
                 headers={"Content-Range": content_range},
             )
         else:
             return AppResponse(
                 data={} if is_item else [],
-                meta={"total": 0, "offset": 0, "limit": 0, "order": query_obj["order"]},
+                meta={
+                    "total": 0,
+                    "offset": 0,
+                    "limit": 0,
+                    "order": query_obj["order"],
+                    "where": query_obj["where"],
+                },
                 headers={"Content-Range": "0/0"},
             )
 
