@@ -1,3 +1,5 @@
+from sanic.request import Request
+
 from auth.auth import user_auth
 from auth.datadef import UserInfo
 from base.exceptions import BadRequestException
@@ -10,8 +12,8 @@ from .domain_process import DomainProcess
 
 class DomainRequest(DomainProcess):
     @classmethod
-    def handle_request_data(cls, request):
-        content_type = request.headers["content-type"]
+    def handle_request_data(cls, request: Request):
+        content_type: str = request.headers["content-type"]
         if content_type.startswith("application/json"):
             return request.json
         elif content_type.startswith("multipart/form-data") or content_type.startswith(
@@ -42,7 +44,7 @@ class DomainRequest(DomainProcess):
         @ResponseHandler.handler
         @user_auth
         async def _command_ingress(
-            request, user: UserInfo, command, resource, identifier=None
+            request: Request, user: UserInfo, command, resource, identifier=None
         ):
             logger.debug(
                 ">>>>>>> Command '%s' to %r <<<<<<<<"
@@ -82,7 +84,7 @@ class DomainRequest(DomainProcess):
 
             @resp_handler
             @auth_handler
-            async def _command_ingress(request, *args, **kwargs):
+            async def _command_ingress(request: Request, *args, **kwargs):
                 logger.debug(
                     ">>>>>>> Request '%s' to %r <<<<<<<<"
                     % (route, (cls.__namespace__, str(func)))

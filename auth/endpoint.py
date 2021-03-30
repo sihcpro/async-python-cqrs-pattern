@@ -1,18 +1,19 @@
 from sanic.request import Request
 
 from base import ResponseHandler
-from base.exceptions import UnauthorizedException, ForbiddenException
+from base.exceptions import ForbiddenException, UnauthorizedException
 from base.tracking import generate_tracking_data
-
+from connector.gino import get_bind
 from .cfg import logger
-from .datadef import AuthUserData, UserData, LoginData, RegisterUserData
+from .datadef import AuthUserData, LoginData, UserData, UserInfo
 from .model import UserAuthModel, UserModel, db
 
 
 @ResponseHandler.handler
 async def register(request: Request):
+    await get_bind()
     async with db.transaction():
-        data = RegisterUserData.create(request.json)
+        data = UserInfo.create(request.json)
         user_data = UserData.extend_pclass(data)
         user = await UserModel.query.where(
             db.or_(
@@ -37,6 +38,7 @@ async def register(request: Request):
 
 @ResponseHandler.handler
 async def login(request: Request):
+    await get_bind()
     async with db.transaction():
         login_data = LoginData.create(request.json)
 

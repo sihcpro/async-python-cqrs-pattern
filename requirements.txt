@@ -4,3 +4,6 @@ sanic
 pyrsistent
 psycopg2-binary
 requests
+temp
+boto3
+pyfcm

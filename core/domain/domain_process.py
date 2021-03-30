@@ -3,6 +3,7 @@ from typing import Any, List, Tuple
 from auth.datadef import UserInfo
 from base.model import db
 from base.store import Store
+from connector.gino import get_bind
 from ..cfg import logger
 from ..command import Command
 from ..context import Context
@@ -62,7 +63,8 @@ class DomainProcess(DomainRegister, DomainHandler):
             logger.info(">>>> State_msg: \n%r", state_msg)
             return [resp async for resp in self.response.commit()]
 
-        async with db.transaction():
+        con = await get_bind()
+        async with con.transaction():
             return await _commit()
 
     @property

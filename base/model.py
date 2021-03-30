@@ -1,6 +1,9 @@
-from gino.ext.sanic import Gino
+import sqlalchemy
+from gino import Gino
 
-db = Gino()
+from .cfg import config
+
+db: sqlalchemy = Gino()
 
 
 class Model(db.Model):

@@ -83,11 +83,11 @@ def user_auth(func):
             #     )
             #     .gino.first()
             # )
-            if result is None:
-                raise UnauthorizedException(errcode=401803)
             user_data = {key: value for key, value in result.items()}
             print("--------> user_data", user_data)
             user: UserInfo = UserInfo.create(user_data, ignore_extra=True)
+            if user is None:
+                raise UnauthorizedException(errcode=401803)
             logger.debug(
                 "User '%r' with key '%s' logged in" % (user.username, auth_key)
             )

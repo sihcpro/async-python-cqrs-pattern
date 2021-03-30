@@ -6,7 +6,6 @@ from base import factory, hashes, validator, variant
 from base.data import PayloadData
 from base.identifier import UUID_GENR, UUID_TYPE
 from base.type import nullable
-
 from .cfg import config
 
 
@@ -33,20 +32,8 @@ class AuthUserData(PayloadData):
     _created = field(datetime, mandatory=True, initial=datetime.utcnow)
 
 
-class UserInfo(PayloadData):
-    _id = field(UUID_TYPE, mandatory=True)
-
-    status = field(int, mandatory=True)
-
-    fullname = field(str, mandatory=True)
-    email = field(nullable(str))
-
-    gender = field(nullable(int))
-    year_of_birth = field(nullable(int))
-
-
 class UserData(PayloadData):
-    _id = field(UUID_TYPE, mandatory=True, initial=UUID_GENR)
+    _id = field(UUID_TYPE, factory=factory.to_uuid, mandatory=True, initial=UUID_GENR)
 
     is_activate = field(bool, mandatory=True, initial=True)
     status = field(int, mandatory=True, initial=0)
@@ -58,6 +45,10 @@ class UserData(PayloadData):
     password = field(str, mandatory=True, invariant=variant.min_length(8, "password"))
 
     fullname = field(str, mandatory=True)
+    email = field(nullable(str))
+
+    gender = field(nullable(int))
+    year_of_birth = field(nullable(int))
 
     contact__phone = field(nullable(str))
     contact__email = field(str, mandatory=True, invariant=validator.email)
@@ -68,7 +59,8 @@ class UserData(PayloadData):
     address__zipcode = field(nullable(str))
 
 
-class RegisterUserData(UserData):
+class UserInfo(UserData):
+    auth_key = field(str)
     device = field(str, mandatory=True)
     location = field(nullable(str))
     information = field(nullable(str), factory=lambda x: str(x))

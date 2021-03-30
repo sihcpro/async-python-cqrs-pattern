@@ -1,9 +1,8 @@
 from typing import Dict, Tuple
 
 from base.helper import pascal_to_snake_case
-
-from ..entity import Entity
 from ..cfg import logger
+from ..entity import Entity
 from ..resource import Resource
 from ..statemgr.state_manager import StateMgr
 from . import BaseDomain
