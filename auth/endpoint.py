@@ -1,11 +1,16 @@
 from sanic.request import Request
 
+from auth.auth import user_auth
 from base import ResponseHandler
-from base.exceptions import ForbiddenException, UnauthorizedException
+from base.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    UnauthorizedException,
+)
 from base.tracking import generate_tracking_data
 from connector.gino import get_bind
 from .cfg import logger
-from .datadef import AuthUserData, LoginData, UserData, UserInfo
+from .datadef import AuthUserData, ChangePasswordData, LoginData, UserData, UserInfo
 from .model import UserAuthModel, UserModel, db
 
 
@@ -56,3 +61,43 @@ async def login(request: Request):
         auth_user_data = AuthUserData.extend_pclass(login_data, user_id=user._id)
         await UserAuthModel.create(**auth_user_data.serialize())
         return {"user_id": user._id, "key": auth_user_data.auth_key}
+
+
+@ResponseHandler.handler
+@user_auth
+async def logout(request: Request, user: UserInfo):
+    await get_bind()
+    async with db.transaction():
+        status, _ = await UserAuthModel.delete.where(
+            UserAuthModel.auth_key == user.auth_key,
+        ).gino.status()
+        if status == "DELETE 1":
+            return {"message": "SUCCESS"}
+        else:
+            return {"message": "FAIL", "status": status}
+
+
+@ResponseHandler.handler
+@user_auth
+async def change_password(request: Request, user: UserInfo):
+    await get_bind()
+    async with db.transaction():
+        pass_data: ChangePasswordData = ChangePasswordData.create(request.json)
+
+        if user.password == pass_data.current_password:
+            status, _ = (
+                await UserModel.update.values(password=pass_data.new_password)
+                .where(
+                    db.and_(
+                        UserModel._id == user._id,
+                        UserModel._etag == user._etag,
+                    )
+                )
+                .gino.status()
+            )
+            if status == "UPDATE 1":
+                return {"message": "SUCCESS"}
+            else:
+                return {"message": "FAIL", "status": status}
+        else:
+            raise BadRequestException(errcode=400022, message="Wrong password!")

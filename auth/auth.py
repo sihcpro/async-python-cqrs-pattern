@@ -86,7 +86,6 @@ def user_auth(func):
             if result is None:
                 raise UnauthorizedException(errcode=401803)
             user_data = {key: value for key, value in result.items()}
-            print("--------> user_data", user_data)
             user: UserInfo = UserInfo.create(user_data, ignore_extra=True)
             logger.debug(
                 "User '%r' with key '%s' logged in" % (user.username, auth_key)

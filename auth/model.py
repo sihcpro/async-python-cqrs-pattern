@@ -1,7 +1,6 @@
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 
 from base import Model, TrackingModel, db
-
 from .cfg import config
 
 
@@ -28,6 +27,7 @@ class UserModel(TrackingModel):
     is_verified__email = db.Column(db.Boolean())
 
     followers = db.Column(ARRAY(UUID))
+    _etag = db.Column(db.String(255))
 
 
 class UserAuthModel(Model):

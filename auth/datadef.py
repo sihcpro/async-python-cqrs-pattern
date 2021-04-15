@@ -18,6 +18,11 @@ class LoginData(PayloadData):
     information = field(nullable(str), factory=lambda x: str(x))
 
 
+class ChangePasswordData(PayloadData):
+    current_password = field(str, mandatory=True, factory=lambda x: str(x))
+    new_password = field(str, mandatory=True, factory=lambda x: str(x))
+
+
 class AuthUserData(PayloadData):
     _id = field(UUID_TYPE, mandatory=True, initial=UUID_GENR)
     user_id = field(UUID_TYPE, mandatory=True, factory=factory.to_uuid)
@@ -30,6 +35,8 @@ class AuthUserData(PayloadData):
     information = field(nullable(str))
 
     _created = field(datetime, mandatory=True, initial=datetime.utcnow)
+    _updated = field(datetime, mandatory=True, initial=datetime.utcnow)
+    _etag = field(str, mandatory=True, initial=hashes.generate_v1)
 
 
 class UserData(PayloadData):
@@ -57,6 +64,8 @@ class UserData(PayloadData):
     address__district = field(nullable(str))
     address__address = field(nullable(str))
     address__zipcode = field(nullable(str))
+
+    _etag = field(str, mandatory=True, initial=hashes.generate_v1)
 
 
 class UserInfo(UserData):
