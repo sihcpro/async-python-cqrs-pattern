@@ -19,6 +19,7 @@ def config_connector(app: SanicApp):
     # db.init_app(app)
     app.get_async_db_conn = get_async_connection
     app.get_db_conn = get_connection
+    print("config.DB_DSN 1", config.DB_DSN)
     logger.info("Done Connector")
 
 
@@ -28,7 +29,6 @@ def get_connection():
 
 
 async def get_async_connection() -> Gino:
-    print("------------->>>>>>>>>>>>>>>>>.")
     db = Gino(bind=config.DB_DSN)
     return db.bind
     return await connect(config.DB_DSN)
@@ -40,12 +40,11 @@ def get_pool():
 
 def __sif__():
     _bind: Connection = None
-    print("--------------> bind", _bind)
 
     async def _get_bind():
-        print("--------------> bind")
         nonlocal _bind
         if _bind is None:
+            print("config.DB_DSN 2", config.DB_DSN)
             _bind = await db.set_bind(
                 config.DB_DSN,
                 ssl=default_ssl(),

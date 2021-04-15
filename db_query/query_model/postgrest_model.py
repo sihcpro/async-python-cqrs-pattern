@@ -64,7 +64,7 @@ class PostgrestQueryModel(BaseQueryModel):
     async def query_resource_list(
         self, request: request, user: UserInfo
     ) -> requests.Response:
-        self.generate_query_data(user, request)
+        await self.generate_query_data(user, request)
         query_obj = self.QUERY_BUILDER.build(self, request.args)
         resp = self.__session.get(
             self.__get_path(query_obj), headers=self.__list_header
@@ -76,7 +76,7 @@ class PostgrestQueryModel(BaseQueryModel):
     ) -> requests.Response:
         kwargs = {"identifier": identifier, "offset": 0}
         kwargs.update(identifier=identifier)
-        self.generate_query_data(user, request)
+        await self.generate_query_data(user, request)
         if self.item_is_list is False:
             kwargs["limit"] = 1
         query_obj = self.QUERY_BUILDER.build(self, request.args, **kwargs)

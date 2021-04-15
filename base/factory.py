@@ -71,3 +71,7 @@ def __sif__():
 
 
 to_boolean: bool = __sif__()
+
+
+def updated(_):
+    return datetime.utcnow()

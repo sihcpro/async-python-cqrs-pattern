@@ -66,13 +66,17 @@ class BaseQueryModel:
     async def query_meta(self) -> list:
         raise NotImplementedError
 
+    async def get_extra_data(self, user: UserInfo, request: request) -> dict:
+        return {}
+
     def default_query(self, user: UserInfo, request: request) -> dict:
         return {}
 
     def base_query(self, user: UserInfo, request: request) -> dict:
         return {}
 
-    def generate_query_data(self, user: UserInfo, request: request):
+    async def generate_query_data(self, user: UserInfo, request: request):
+        self.extra_data = await self.get_extra_data(user, request)
         self.default_query_data = self.default_query(user, request)
         self.base_query_data = self.base_query(user, request)
 

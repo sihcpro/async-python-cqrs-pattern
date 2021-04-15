@@ -11,9 +11,7 @@ def load_app(name: str) -> (Config, logging):
     config.load_environment(config.ENV)
     config.load_argument(sys.argv)
 
-    logger = setup_logger(
-        module_name=config.__module_name__, log_config=config
-    )
+    logger = setup_logger(module_name=config.__module_name__, log_config=config)
     return config, logger
 
 
