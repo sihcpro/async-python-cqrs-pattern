@@ -1,12 +1,4 @@
-from pyfcm import FCMNotification
+from .email import EmailNotifier
+from .fcm import FCMNotifier
 
-from base.encoder import CustomEncoder
-from ..base.notifier import Notifier
-from ..cfg import config
-
-
-class FCMNotifier(Notifier):
-    def __init__(self):
-        self.notifier = FCMNotification(
-            config.FCM_SERVER_KEY, env=config.ENV, json_encoder=CustomEncoder
-        )
+__all__ = ("FCMNotifier", "EmailNotifier")
