@@ -1,6 +1,6 @@
+from builtins import isinstance
 from pyrsistent import _checked_types
 
-from builtins import isinstance
 from .response import AppResponse
 
 try:
@@ -71,9 +71,14 @@ class ExceptionHandler:
                 errcode=400906, message=f"Missing field {str(error)}"
             ).resp
         elif isinstance(error, _checked_types.InvariantException):
-            return BadRequestException(
-                errcode=400907, message=f" Missing field {error.missing_fields[0]}"
-            ).resp
+            if error.missing_fields:
+                return BadRequestException(
+                    errcode=400907, message=f"Missing field {error.missing_fields[0]}"
+                ).resp
+            else:
+                return BadRequestException(
+                    errcode=400908, message="Something went wrong", data=error.__dict__
+                ).resp
 
         return AppException(errcode=500902, message=str(error)).resp
 
