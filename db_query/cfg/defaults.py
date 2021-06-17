@@ -1,5 +1,5 @@
 # POSTGREST
-DEFAULT_POSTGREST_URI = "http://localhost:3000/"
+POSTGREST_URI = "http://localhost:3000"
 
 # QUERY
 LIMIT = 25

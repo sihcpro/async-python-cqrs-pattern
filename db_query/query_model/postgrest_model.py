@@ -1,9 +1,10 @@
 import requests
+from os import path
 from sanic import request
 
 from auth import UserInfo
 from base.response import AppResponse
-from ..cfg import config
+from ..cfg import config, logger
 from ..query_builder import QueryBuilder, QueryObject
 from .base_model import BaseQueryModel
 
@@ -17,8 +18,9 @@ class PostgrestQueryModel(BaseQueryModel):
         "Accept": "application/vnd.pgrst.object+json",
         **NORMAL_HEADER,
     }
+    logger.debug("default postgrest_uri: %r", config.POSTGREST_URI)
 
-    def __init__(self, postgrest_uri=config.DEFAULT_POSTGREST_URI, ssl=False):
+    def __init__(self, postgrest_uri=config.POSTGREST_URI, ssl=False):
         super().__init__()
         self.__postgrest_uri = postgrest_uri
         self.__init_session(ssl)
@@ -86,4 +88,7 @@ class PostgrestQueryModel(BaseQueryModel):
         return self.to_response(resp, query_obj)
 
     def __get_path(self, query_obj: str = ""):
-        return f"{self.__postgrest_uri}/{self.table}{query_obj}"
+        logger.debug(
+            f"Request: {path.join(self.__postgrest_uri, f'{self.table}{query_obj}')}"
+        )
+        return path.join(self.__postgrest_uri, f"{self.table}{query_obj}")
