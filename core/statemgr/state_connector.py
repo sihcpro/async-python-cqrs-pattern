@@ -1,7 +1,6 @@
-from base.tracking import TrackingModel
-from base import db, UUID_TYPE
+from base import UUID_TYPE, db
 from base.exceptions import NotFoundException
-
+from base.tracking import TrackingModel
 from ..datadef import ResourceData
 from ..resource import Resource
 from .state_store import StateStore

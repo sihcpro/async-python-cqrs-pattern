@@ -10,7 +10,7 @@ from connector.gino import db as gino_db
 from connector.gino import get_async_connection, get_bind, get_connection
 from .cfg import logger
 from .datadef import UserInfo
-from .model import UserAuthModel, UserModel
+from .model import DefaultModel, UserAuthModel
 
 
 def user_auth(func):
@@ -37,14 +37,14 @@ def user_auth(func):
             result = await (
                 db.select(
                     [
-                        UserModel,
+                        DefaultModel["user"],
                         UserAuthModel.auth_key,
                         UserAuthModel.device,
                         UserAuthModel.location,
                         UserAuthModel.information,
                     ]
                 )
-                .select_from(UserModel.join(UserAuthModel))
+                .select_from(DefaultModel["user"].join(UserAuthModel))
                 .where(UserAuthModel.auth_key == auth_key)
                 .gino.first()
             )
@@ -53,7 +53,7 @@ def user_auth(func):
             #     conn.execute(
             #         select(
             #             [
-            #                 UserModel,
+            #                 DefaultModel["user"],
             #                 UserAuthModel.auth_key,
             #                 UserAuthModel.device,
             #                 UserAuthModel.location,
@@ -62,7 +62,7 @@ def user_auth(func):
             #         )
             #         .where(
             #             db.and_(
-            #                 UserModel._id == UserAuthModel.user_id,
+            #                 DefaultModel["user"]._id == UserAuthModel.user_id,
             #                 UserAuthModel.auth_key == auth_key,
             #             )
             #         )
@@ -71,10 +71,10 @@ def user_auth(func):
             #     )
             # )
             # result = await (
-            #     UserModel.join(UserAuthModel)
+            #     DefaultModel["user"].join(UserAuthModel)
             #     .select(
             #         [
-            #             UserModel,
+            #             DefaultModel["user"],
             #             UserAuthModel.auth_key,
             #             UserAuthModel.device,
             #             UserAuthModel.location,

@@ -1,7 +1,9 @@
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 
 from base import Model, TrackingModel, db
-from .cfg import config
+from .cfg import config, logger
+
+logger.debug("SCHEMA_NAME: %s", config.SCHEMA_NAME)
 
 
 class UserModel(TrackingModel):
@@ -26,7 +28,7 @@ class UserModel(TrackingModel):
     is_verified__phone = db.Column(db.Boolean())
     is_verified__email = db.Column(db.Boolean())
 
-    followers = db.Column(ARRAY(UUID))
+    followers = db.Column(ARRAY(UUID), default=[])
     _etag = db.Column(db.String(255))
 
 
@@ -37,7 +39,7 @@ class UserAuthModel(Model):
     _id = db.Column(UUID, primary_key=True)
     user_id = db.Column(
         UUID,
-        db.ForeignKey(f'{config.get_module_config("app").SCHEMA_NAME}.user._id'),
+        db.ForeignKey(f"{config.get_module_config('app').SCHEMA_NAME}.user._id"),
     )
 
     auth_key = db.Column(db.String(255))
@@ -46,3 +48,24 @@ class UserAuthModel(Model):
     information = db.Column(db.String(511))
 
     _created = db.Column(db.DateTime(timezone=False))
+
+
+class UserRequestModel(Model):
+    __table_args__ = dict(schema=config.SCHEMA_NAME)
+    __tablename__ = "user-request"
+
+    _id = db.Column(UUID, primary_key=True)
+    user_id = db.Column(
+        UUID, db.ForeignKey(f"{config.get_module_config('app').SCHEMA_NAME}.user._id")
+    )
+
+    request_type = db.Column(db.String(1))
+    code = db.Column(db.String(15))
+    expiration_date = db.Column(db.DateTime())
+
+
+DefaultModel = {
+    "user": UserModel,
+}
+
+__all__ = ("DefaultModel",)

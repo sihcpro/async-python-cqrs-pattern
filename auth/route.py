@@ -2,7 +2,14 @@ from sanic.request import Request
 from sanic.response import json
 
 from base.sanic import SanicApp
-from .endpoint import change_password, login, logout, register
+from .endpoint import (
+    change_password,
+    confirm_reset_password_request,
+    login,
+    logout,
+    register,
+    reset_password_request,
+)
 
 
 def config_auth_route(app: SanicApp):
@@ -14,3 +21,9 @@ def config_auth_route(app: SanicApp):
     app.add_route(register, "/register", methods=["POST"])
     app.add_route(logout, "/logout", methods=["POST"])
     app.add_route(change_password, "/change-password", methods=["POST"])
+    app.add_route(reset_password_request, "/reset-password-request", methods=["POST"])
+    app.add_route(
+        confirm_reset_password_request,
+        "/confirm-reset-password-request",
+        methods=["POST"],
+    )
